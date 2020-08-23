@@ -112,7 +112,7 @@ namespace WFAGoolgeSheet
             this.panText.Margin = new Padding(0);
             this.panText.MaximumSize = new Size(500, 300);
             this.panText.MinimumSize = new Size(108, 50);
-            this.panText.Size = new Size(108, 50);
+            this.panText.Size = new Size(108, 90);
             // 
             // panButtons
             // 
