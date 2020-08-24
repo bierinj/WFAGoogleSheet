@@ -1,7 +1,18 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WFAGoolgeSheet.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TestSheet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">12K_R15ewXNmMj7LHqaxQJpZpzgGqS7uDe6rJgEKfAj0</Value>
+    </Setting>
+    <Setting Name="ProdSheet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1Ju9HyYti08VlqaILvQXEWyiflD9DJUzXZ9KYYt5hBzc</Value>
+    </Setting>
+    <Setting Name="maxChg" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="perSec" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">25</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

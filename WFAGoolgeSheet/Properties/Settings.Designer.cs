@@ -22,5 +22,53 @@ namespace WFAGoolgeSheet.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("12K_R15ewXNmMj7LHqaxQJpZpzgGqS7uDe6rJgEKfAj0")]
+        public string TestSheet {
+            get {
+                return ((string)(this["TestSheet"]));
+            }
+            set {
+                this["TestSheet"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1Ju9HyYti08VlqaILvQXEWyiflD9DJUzXZ9KYYt5hBzc")]
+        public string ProdSheet {
+            get {
+                return ((string)(this["ProdSheet"]));
+            }
+            set {
+                this["ProdSheet"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int maxChg {
+            get {
+                return ((int)(this["maxChg"]));
+            }
+            set {
+                this["maxChg"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public int perSec {
+            get {
+                return ((int)(this["perSec"]));
+            }
+            set {
+                this["perSec"] = value;
+            }
+        }
     }
 }
