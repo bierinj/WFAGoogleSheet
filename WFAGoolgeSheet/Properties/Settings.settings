@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WFAGoolgeSheet.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="TestSheet" Type="System.String" Scope="User">
-      <Value Profile="(Default)">12K_R15ewXNmMj7LHqaxQJpZpzgGqS7uDe6rJgEKfAj0</Value>
-    </Setting>
     <Setting Name="ProdSheet" Type="System.String" Scope="User">
       <Value Profile="(Default)">1Ju9HyYti08VlqaILvQXEWyiflD9DJUzXZ9KYYt5hBzc</Value>
     </Setting>
@@ -13,6 +10,15 @@
     </Setting>
     <Setting Name="perSec" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">25</Value>
+    </Setting>
+    <Setting Name="FSsheetID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1607324978</Value>
+    </Setting>
+    <Setting Name="INsheetID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2145664999</Value>
+    </Setting>
+    <Setting Name="TestSheet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1p-MtloHiXLCjin829YaMO_721WSxFZ_ME4BMwjxxs8s</Value>
     </Setting>
   </Settings>
 </SettingsFile>

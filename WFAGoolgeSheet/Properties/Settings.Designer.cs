@@ -25,18 +25,6 @@ namespace WFAGoolgeSheet.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("12K_R15ewXNmMj7LHqaxQJpZpzgGqS7uDe6rJgEKfAj0")]
-        public string TestSheet {
-            get {
-                return ((string)(this["TestSheet"]));
-            }
-            set {
-                this["TestSheet"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1Ju9HyYti08VlqaILvQXEWyiflD9DJUzXZ9KYYt5hBzc")]
         public string ProdSheet {
             get {
@@ -68,6 +56,42 @@ namespace WFAGoolgeSheet.Properties {
             }
             set {
                 this["perSec"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1607324978")]
+        public int FSsheetID {
+            get {
+                return ((int)(this["FSsheetID"]));
+            }
+            set {
+                this["FSsheetID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2145664999")]
+        public int INsheetID {
+            get {
+                return ((int)(this["INsheetID"]));
+            }
+            set {
+                this["INsheetID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1p-MtloHiXLCjin829YaMO_721WSxFZ_ME4BMwjxxs8s")]
+        public string TestSheet {
+            get {
+                return ((string)(this["TestSheet"]));
+            }
+            set {
+                this["TestSheet"] = value;
             }
         }
     }

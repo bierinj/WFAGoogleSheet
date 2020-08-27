@@ -626,7 +626,7 @@ namespace WFAGoolgeSheet
                                     if (firstpos) break;
                                 }
 
-                                if (!firstpos) form2.textBox6.Text = form2.textBox6.Text + Environment.NewLine + today.ToString("yyyy-MM-dd ddd tt") + ": ";
+                                if (!firstpos) form2.textBox6.Text = form2.textBox6.Text + Environment.NewLine + DateTime.Now.ToString("yyyy-MM-dd ddd hh:mm tt") + ": ";
                                 else form2.textBox6.Text = form2.textBox6.Text + Environment.NewLine;
                                 switch (dataGridView1.CurrentRow.Cells[4].Value?.ToString())
                                 {
@@ -1026,8 +1026,7 @@ namespace WFAGoolgeSheet
                         if (SubListItem == "C5") sValue.Add("N/A");
                         else sValue.Add(SubListItem.ToString());         // here is the associated data               
                     }
-                    //if (SubListItem == "pS")
-                    //{
+
                     if (moves.Count > 0)
                     {
                         foreach (var Item in moves)
@@ -1060,24 +1059,6 @@ namespace WFAGoolgeSheet
                         }
                     }
 
-                    //}
-                    //if (SubListItem == "pE")
-                    //{
-                    //    if (moves.Count > 0)
-                    //    {
-                    //        foreach (var Item in moves)
-                    //        {
-                    //            string key = null;
-                    //            foreach (string SubItem in Item)
-                    //            {
-                    //                if (key != null) Tabname = SubItem;
-                    //                if (SubItem == "pE")
-                    //                    key = SubItem;
-                    //            }
-                    //        }
-                    //    }
-
-                    //}
                     dataready = false;                          // prepare for next row
                 }
 
@@ -1108,113 +1089,84 @@ namespace WFAGoolgeSheet
                 //
                 // run our request
                 //
-                String range2 = Tabname + "!" + fCol + sRow + ":" + sCol + sRow;  // cell to update on Tab 
-                ValueRange valueRange = new ValueRange();
-                valueRange.MajorDimension = "ROWS";// "ROWS";//COLUMNS
-                IList<IList<object>> oblist = new List<IList<object>>();
-                oblist.Add(sValue);
-                valueRange.Values = oblist;
+                if(Tabname!="delete")
+                { 
+                    String range2 = Tabname + "!" + fCol + sRow + ":" + sCol + sRow;  // cell to update on Tab 
+                    ValueRange valueRange = new ValueRange();
+                    valueRange.MajorDimension = "ROWS";// "ROWS";//COLUMNS
+                    IList<IList<object>> oblist = new List<IList<object>>();
+                    oblist.Add(sValue);
+                    valueRange.Values = oblist;
 
-                //
-                // execute request
-                //
-                SpreadsheetsResource.ValuesResource.UpdateRequest update = service.Spreadsheets.Values.Update(valueRange, spreadsheetId2, range2);
-                update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-                UpdateValuesResponse result2 = update.Execute();
-
+                    //
+                    // execute request
+                    //
+                    SpreadsheetsResource.ValuesResource.UpdateRequest update = service.Spreadsheets.Values.Update(valueRange, spreadsheetId2, range2);
+                    update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+                    UpdateValuesResponse result2 = update.Execute();
+                }
                 //
                 // delete processed rows in datagrid and Google imported name sheet
                 //
-                //if(checkBox3.Checked)
-                for (int y = 0; y < dataGridView1.Rows.Count; y++)
+                if (checkBox3.Checked)       /*(checkBox3.Checked*/
                 {
-                    if (dataGridView1.Rows[y].Visible == true)
+                    for (int y = 0; y < dataGridView1.Rows.Count; y++)
                     {
-                        dataGridView1.Rows[y].Cells[0].Selected = true;
-                        string Col = string.Format("A{0}:H{1}", y+rowOffset+1, y+rowOffset+1);
-                        // The ID of the spreadsheet to update.
-                        //string spreadsheetId = spreadsheetId1;  // TODO: Update placeholder value.
+                        if (dataGridView1.Rows[y].Visible == true)
+                        {
+                            dataGridView1.Rows[y].Cells[0].Selected = true;
 
-                        // The A1 notation of the values to clear.
-                        string range = Col;  // TODO: Update placeholder value.
+                            List<Request> deleteRequestsList = new List<Request>();
+                            BatchUpdateSpreadsheetRequest _batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
+                            Request _deleteRequest = new Request();
+                            _deleteRequest.DeleteDimension = new DeleteDimensionRequest();
+                            _deleteRequest.DeleteDimension.Range = new DimensionRange();
+                            
+                            if(Tabname == "Field Service")
+                                _deleteRequest.DeleteDimension.Range.SheetId = Properties.Settings.Default.FSsheetID;
+                            if(Tabname == "Imported Names")
+                                _deleteRequest.DeleteDimension.Range.SheetId = Properties.Settings.Default.INsheetID;
+                            _deleteRequest.DeleteDimension.Range.Dimension = "ROWS";
+                            _deleteRequest.DeleteDimension.Range.StartIndex = y + rowOffset;
+                            _deleteRequest.DeleteDimension.Range.EndIndex = y + rowOffset + 1;
 
-                        // TODO: Assign values to desired properties of `requestBody`:
-                        //Google.Apis.Sheets.v4.Data.ClearValuesRequest requestBody = new Google.Apis.Sheets.v4.Data.ClearValuesRequest();
-                        //SpreadsheetsResource.ValuesResource.ClearRequest request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
-                        //Google.Apis.Sheets.v4.Data.ClearValuesResponse response = request.Execute();
+                            deleteRequestsList.Add(_deleteRequest);
+                            _batchUpdateSpreadsheetRequest.Requests = deleteRequestsList;
+                            service.Spreadsheets.BatchUpdate(_batchUpdateSpreadsheetRequest, spreadsheetId).Execute();
 
-                        //requestBody.Range.SheetId = "Field Service";
-                        //requestBody.Range.Dimension = "ROWS";
-                        //requestBody.Range.StartIndex = y + rowOffset + 1;
-                        //requestBody.Range.EndIndex = y + rowOffset + 1;
-                        //Google.Apis.Sheets.v4.Data.DeleteDimensionRequest sRequest = new Google.Apis.Sheets.v4.Data.DeleteDimensionRequest();
-                        //BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
-                        //List<DeleteDimensionRequest> requests = new List<DeleteDimensionRequest>();
-                        //BatchUpdateSpreadsheetRequest request = new BatchUpdateSpreadsheetRequest();
-                        //    sRequest.Range = new DimensionRange
-                        //    {
-                        //        Dimension = "ROWS",
-                        //        StartIndex = y + rowOffset + 1,
-                        //        EndIndex = y + rowOffset + 1
-                        //};
-                        //    requests.Add(sRequest);
-                        //batchUpdateSpreadsheetRequest.Requests = (IList<Request>)requests;
-                        //SpreadsheetsResource.BatchUpdateRequest Deletion = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
-                        //SpreadsheetsResource.BatchUpdateRequest Deletion = service.Spreadsheets.BatchUpdate(request, spreadsheetId);
-                        //Deletion.Execute();
-                        List<Request> deleteRequestsList = new List<Request>();
-                        BatchUpdateSpreadsheetRequest _batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
-                        Request _deleteRequest = new Request();
-                        _deleteRequest.DeleteDimension = new DeleteDimensionRequest();
-                        _deleteRequest.DeleteDimension.Range = new DimensionRange();
-                        _deleteRequest.DeleteDimension.Range.SheetId = 1607324978;
-                        _deleteRequest.DeleteDimension.Range.Dimension = "ROWS";
-                        _deleteRequest.DeleteDimension.Range.StartIndex = y + rowOffset;
-                        _deleteRequest.DeleteDimension.Range.EndIndex = y + rowOffset + 1;
-                        //string temp = "Field Service!" + Col;
-                        //_deleteRequest.DeleteNamedRange.NamedRangeId = temp;
-
-                        deleteRequestsList.Add(_deleteRequest);
-                        _batchUpdateSpreadsheetRequest.Requests = deleteRequestsList;
-                        service.Spreadsheets.BatchUpdate(_batchUpdateSpreadsheetRequest, spreadsheetId).Execute();
-
-
-                        if(dataGridView1.Rows.Count > y+1 )dataGridView1.Rows.Remove(dataGridView1.Rows[y]);
-                        rows2del--;
-                        break;
+                            if (dataGridView1.Rows.Count > y + 1) dataGridView1.Rows.Remove(dataGridView1.Rows[y]);
+                            rows2del--;
+                            continue;
+                        }
                     }
+                    dataGridView1.Update();
+                    dataGridView1.Visible = true;
+                    totalChgs++;
+                    sValue.Clear();
+                    //
+                    // update progress bar
+                    //
+                    int remainder;
+                    l++;
+                    Math.DivRem(l, cellch.Count, out remainder);
+                    if (cellch.Count > 100)
+                        progress = (remainder / (cellch.Count / 100));
+                    else
+                        progress = remainder * ((100 - 1) / cellch.Count);
+                    if (progress < 100) progressBar1.Value = progress;
+                    progressBar1.Update();
                 }
-
-            
-                dataGridView1.Update();
-                dataGridView1.Visible = true;
-                totalChgs++;
-                sValue.Clear();
-
                 //
-                // update progress bar
+                // Clean up and finish
                 //
-                int remainder;
-                l++;
-                Math.DivRem(l, cellch.Count, out remainder);
-                if (cellch.Count > 100)
-                    progress = (remainder / (cellch.Count / 100));
-                else
-                    progress = remainder * ((100 - 1) / cellch.Count);
-                if (progress < 100) progressBar1.Value = progress;
-                progressBar1.Update();
+                Console.WriteLine("done!");
+                DataChanged = false;
+                cellch.Clear();
+                textBox1.Text = " done ";
+                progressBar1.Value = 100;
+                return;
             }
-            //
-            // Clean up and finish
-            //
-            Console.WriteLine("done!");
-            DataChanged = false;
-            cellch.Clear();
-            textBox1.Text = " done ";
-            progressBar1.Value = 100;
-            return;
         }
-
         //
         //
         //
@@ -1971,7 +1923,7 @@ namespace WFAGoolgeSheet
                         nRow = row.Index;
                         break;
                     }
-                    //List<string> temp_list2 = new List<string>();
+
                     foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
                         if (row.Visible == false) continue;
@@ -1999,7 +1951,7 @@ namespace WFAGoolgeSheet
                         if (checkBox1.Checked == true) SaveSheetChanges("Field Service");
                         else continue;
                     }
-                Tabfocus = "Field Service";
+                Tabfocus = "Imported Names";
                 }
 
                 if (comboBox1.SelectedIndex == 1)            // process EOD for Field Service
@@ -2026,9 +1978,14 @@ namespace WFAGoolgeSheet
                     moves.Add(new List<String>());
                     moves[m].Add("pS");
                     moves[m].Add("Only Spanish");
+                    m = moves.Count;
                     moves.Add(new List<String>());
                     moves[m].Add("C5");
                     moves[m].Add("Contacted 5 times letters");
+                    m = moves.Count;
+                    moves.Add(new List<String>());
+                    moves[m].Add("I");
+                    moves[m].Add("delete");
 
                     nRow = 0;
                     foreach (DataGridViewRow row in dataGridView1.Rows)  // find first viable row
@@ -2042,11 +1999,13 @@ namespace WFAGoolgeSheet
                     {
                         if (row.Visible == false) continue;
                         int t = 0;
+                        int f = row.Index;
                         if(!string.IsNullOrEmpty(row.Cells[4].Value?.ToString()))
                         {
                             if (row.Cells[4].Value.ToString() == "E") t = lastCErow++;
                             if (row.Cells[4].Value.ToString() == "SP") t = lastSProw++;
                             if (row.Cells[4].Value.ToString() == "pS") t = lastSProw++;
+                            if (row.Cells[4].Value.ToString() == "I") t = f;        // we don't move or add these, just delete it!
                             if (row.Cells[4].Value.ToString() == "N/A")             // see if N/A was attempted more than 5 times
                             {
                                 short numtrys = 0;
@@ -2082,6 +2041,8 @@ namespace WFAGoolgeSheet
                         dataGridView1.Rows[y].Cells[0].Selected = true;
                         break;
                     }
+                dataGridView1.Visible = true;
+                dataGridView1.Update();
                 return;
             }
         }
