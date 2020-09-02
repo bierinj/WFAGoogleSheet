@@ -49,7 +49,7 @@ namespace WFAGoolgeSheet.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("21")]
         public int perSec {
             get {
                 return ((int)(this["perSec"]));
@@ -85,7 +85,7 @@ namespace WFAGoolgeSheet.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1TKCZpfZ4DlYOZUA-671avRy5ItIOXbyJMl36AMjPfG0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("19GUMT85eHJc0ksM1R-W06LjCMIUg4KNC1bzQneWJ6DU")]
         public string TestSheet {
             get {
                 return ((string)(this["TestSheet"]));

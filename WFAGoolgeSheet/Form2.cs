@@ -65,8 +65,7 @@ namespace WFAGoolgeSheet
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            string title = String.Format("Field Service Record");
-            Form2.ActiveForm.Text = title;
+
         }
     }
 }

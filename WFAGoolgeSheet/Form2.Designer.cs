@@ -70,6 +70,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(294, 26);
             this.textBox1.TabIndex = 0;
+            this.textBox1.TabStop = false;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
@@ -80,6 +81,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(475, 20);
             this.textBox2.TabIndex = 1;
+            this.textBox2.TabStop = false;
             // 
             // textBox3
             // 
@@ -89,6 +91,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(341, 20);
             this.textBox3.TabIndex = 2;
+            this.textBox3.TabStop = false;
             // 
             // textBox4
             // 
@@ -97,6 +100,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 20);
             this.textBox4.TabIndex = 3;
+            this.textBox4.TabStop = false;
             // 
             // textBox5
             // 
@@ -105,6 +109,7 @@
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(68, 20);
             this.textBox5.TabIndex = 4;
+            this.textBox5.TabStop = false;
             // 
             // label1
             // 
@@ -211,7 +216,7 @@
             this.radioButton6.Location = new System.Drawing.Point(473, 0);
             this.radioButton6.Name = "radioButton6";
             this.radioButton6.Size = new System.Drawing.Size(93, 17);
-            this.radioButton6.TabIndex = 27;
+            this.radioButton6.TabIndex = 7;
             this.radioButton6.TabStop = true;
             this.radioButton6.Text = "Native English";
             this.radioButton6.UseVisualStyleBackColor = true;
@@ -222,7 +227,7 @@
             this.radioButton1.Location = new System.Drawing.Point(20, 0);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(77, 17);
-            this.radioButton1.TabIndex = 22;
+            this.radioButton1.TabIndex = 2;
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "No Answer";
             this.radioButton1.UseVisualStyleBackColor = true;
@@ -233,7 +238,7 @@
             this.radioButton5.Location = new System.Drawing.Point(395, 0);
             this.radioButton5.Name = "radioButton5";
             this.radioButton5.Size = new System.Drawing.Size(63, 17);
-            this.radioButton5.TabIndex = 26;
+            this.radioButton5.TabIndex = 6;
             this.radioButton5.TabStop = true;
             this.radioButton5.Text = "Spanish";
             this.radioButton5.UseVisualStyleBackColor = true;
@@ -244,7 +249,7 @@
             this.radioButton2.Location = new System.Drawing.Point(112, 0);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(67, 17);
-            this.radioButton2.TabIndex = 23;
+            this.radioButton2.TabIndex = 3;
             this.radioButton2.TabStop = true;
             this.radioButton2.Text = "Business";
             this.radioButton2.UseVisualStyleBackColor = true;
@@ -255,7 +260,7 @@
             this.radioButton4.Location = new System.Drawing.Point(293, 0);
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.Size = new System.Drawing.Size(79, 17);
-            this.radioButton4.TabIndex = 25;
+            this.radioButton4.TabIndex = 5;
             this.radioButton4.TabStop = true;
             this.radioButton4.Text = "Do Not Call";
             this.radioButton4.UseVisualStyleBackColor = true;
@@ -266,7 +271,7 @@
             this.radioButton3.Location = new System.Drawing.Point(194, 0);
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.Size = new System.Drawing.Size(78, 17);
-            this.radioButton3.TabIndex = 24;
+            this.radioButton3.TabIndex = 4;
             this.radioButton3.TabStop = true;
             this.radioButton3.Text = "Inoperative";
             this.radioButton3.UseVisualStyleBackColor = true;
@@ -278,7 +283,7 @@
             this.button1.Location = new System.Drawing.Point(605, 256);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 20;
+            this.button1.TabIndex = 1;
             this.button1.Text = "OK";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -290,6 +295,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 21;
+            this.button2.TabStop = false;
             this.button2.Text = "Exit";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -302,6 +308,7 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 22;
+            this.button3.TabStop = false;
             this.button3.Text = "Skip / Next";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
@@ -313,6 +320,7 @@
             this.textBox7.Name = "textBox7";
             this.textBox7.Size = new System.Drawing.Size(84, 20);
             this.textBox7.TabIndex = 23;
+            this.textBox7.TabStop = false;
             // 
             // label8
             // 
@@ -332,6 +340,7 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 25;
+            this.button4.TabStop = false;
             this.button4.Text = "Skip / Back";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
@@ -344,6 +353,7 @@
             this.textBox8.Name = "textBox8";
             this.textBox8.Size = new System.Drawing.Size(89, 20);
             this.textBox8.TabIndex = 26;
+            this.textBox8.TabStop = false;
             // 
             // label9
             // 
@@ -371,6 +381,7 @@
             this.textBox9.Name = "textBox9";
             this.textBox9.Size = new System.Drawing.Size(89, 20);
             this.textBox9.TabIndex = 29;
+            this.textBox9.TabStop = false;
             // 
             // Form2
             // 

@@ -9,7 +9,7 @@
       <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="perSec" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">25</Value>
+      <Value Profile="(Default)">21</Value>
     </Setting>
     <Setting Name="FSsheetID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1607324978</Value>
@@ -18,7 +18,7 @@
       <Value Profile="(Default)">2145664999</Value>
     </Setting>
     <Setting Name="TestSheet" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1TKCZpfZ4DlYOZUA-671avRy5ItIOXbyJMl36AMjPfG0</Value>
+      <Value Profile="(Default)">19GUMT85eHJc0ksM1R-W06LjCMIUg4KNC1bzQneWJ6DU</Value>
     </Setting>
   </Settings>
 </SettingsFile>
