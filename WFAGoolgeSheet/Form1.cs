@@ -22,6 +22,8 @@ using System.Windows.Media.Converters;
 using System.Windows.Input;
 using System.IdentityModel.Tokens;
 using System.Runtime.InteropServices;
+using System.Globalization;
+using System.Windows;
 
 namespace WFAGoolgeSheet
 {
@@ -87,6 +89,12 @@ namespace WFAGoolgeSheet
         int numOfSP = 0;
         int numOfpE = 0;
         int numOfSkip = 0;
+        public bool setMinDate = false;
+        public bool _setPM = false;
+        public bool _setAM = false;
+        DateTime lastDate = new DateTime();
+        DateTime pastTime = new DateTime();
+        List<string> lst = new List<string>();    // for days of the week
         public int SecondFromTop;
         public int SecondFormLeft;
         public System.Drawing.Size SecondFormSize = System.Drawing.Size.Empty;
@@ -131,7 +139,7 @@ namespace WFAGoolgeSheet
 
             if (DataChanged)
             {
-                DialogResult result1 = MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
                     MessageBoxButtons.YesNo);
                 //
@@ -140,7 +148,7 @@ namespace WFAGoolgeSheet
                 if (result1 == DialogResult.No || result1 == DialogResult.Retry)
                     return;
             }
-            Application.Exit();
+            System.Windows.Forms.Application.Exit();
         }
 
         //---------------------------------------------------------------------------
@@ -163,25 +171,25 @@ namespace WFAGoolgeSheet
 
             if (checkedListBox1.CheckedItems.Count < 1 && comboBox1.SelectedIndex<2)
             {
-                MessageBox.Show(" You have no Filters selected");
+                System.Windows.Forms.MessageBox.Show(" You have no Filters selected");
                 return;
             }
                 if (comboBox1.SelectedIndex == -1)
             {
-                MessageBox.Show(" No Sheet Tab selected");
+                System.Windows.Forms.MessageBox.Show(" No Sheet Tab selected");
                 return;
             }
 
             if (!radioButton1.Checked && !radioButton2.Checked)
             {
-                MessageBox.Show(" No Sheet [test/live] selected");
+                System.Windows.Forms.MessageBox.Show(" No Sheet [test/live] selected");
                 return;
             }
             if (comboBox1.SelectedIndex == 1)
             {
                 if (firstrow == 0 || skiprow == 0 || firstrow > skiprow)
                 {
-                    MessageBox.Show(" group range is bad ");
+                    System.Windows.Forms.MessageBox.Show(" group range is bad ");
                     return;
                 }
 
@@ -194,13 +202,13 @@ namespace WFAGoolgeSheet
                     }
                 if (!found)
                 {
-                    MessageBox.Show(" no filters selected ");
+                    System.Windows.Forms.MessageBox.Show(" no filters selected ");
                     return;
                 }
             }
             if (DataChanged)
             {
-                DialogResult result1 = MessageBox.Show(" There are unsaved changes \n Do you want to Re-Run and loose these changes?",
+                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to Re-Run and loose these changes?",
                     "Important Question",
                     MessageBoxButtons.YesNo);
                 //
@@ -233,22 +241,21 @@ namespace WFAGoolgeSheet
 
             dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dataGridView1.MultiSelect = false;
-            //dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.GridColor = System.Drawing.Color.Black;
             dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.Navy;
             dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
             dataGridView1.ColumnHeadersDefaultCellStyle.Font =
-                new Font(dataGridView1.Font, FontStyle.Bold);
+                new Font(dataGridView1.Font, System.Drawing.FontStyle.Bold);
             dataGridView1.Name = "dataGridView1";
-            //dataGridView1.Location = new Point(8, 8);
-            //dataGridView1.Size = new Size(500, 250);
+            //dataGridView1.
             dataGridView1.AutoSizeRowsMode =
-                DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+                DataGridViewAutoSizeRowsMode.DisplayedCells;
             dataGridView1.ColumnHeadersBorderStyle =
                 DataGridViewHeaderBorderStyle.Single;
             dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.Single;
-            dataGridView1.RowHeadersVisible = false;
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            dataGridView1.RowHeadersVisible = true;
+            dataGridView1.AllowUserToResizeColumns = true;
+            dataGridView1.AllowUserToResizeRows = true;
 
             System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             int v = dataGridView1.VerticalScrollingOffset;
@@ -397,7 +404,8 @@ namespace WFAGoolgeSheet
 
             dataGridView1.HorizontalScrollingOffset = h;
             System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-            //dataGridView1.CurrentCell = null; ;
+
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.Visible = true;
             dataGridView1.Columns.Cast<DataGridViewColumn>().ToList().ForEach(f => f.SortMode = DataGridViewColumnSortMode.NotSortable);
             totalRow = dataGridView1.Rows.Count - 1;
@@ -438,6 +446,7 @@ namespace WFAGoolgeSheet
                 label9.Visible = false;
                 checkBox2.Visible = false;
                 checkBox3.Visible = false;
+                if (comboBox1.SelectedIndex == 1) checkBox4.Visible = true;
                 if (gEODhit)
                 {
                     gEODhit = false;
@@ -474,7 +483,7 @@ namespace WFAGoolgeSheet
 
             if (DataChanged)
             {
-                DialogResult result1 = MessageBox.Show(" There are unsaved changes \n Do you want to Clear and loose these changes?",
+                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to Clear and loose these changes?",
                     "Important Question",
                     MessageBoxButtons.YesNo);
                 //
@@ -516,14 +525,14 @@ namespace WFAGoolgeSheet
         {
             if (DataChanged)
             {
-                DialogResult result1 = MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
                     MessageBoxButtons.YesNo);
                 //
                 // Test the results of the previous 3 dialogs.
                 //
                 if (result1 == DialogResult.Yes)
-                    Application.Exit();
+                    System.Windows.Forms.Application.Exit();
             }
             cellch.Clear();
             credential.RevokeTokenAsync(new CancellationToken());
@@ -621,7 +630,7 @@ namespace WFAGoolgeSheet
                                 form2.textBox1.Update();
                                 if (string.IsNullOrEmpty(form2.textBox7.Text)) tmp0 = " ";
                                 else tmp0 = " - city " + form2.textBox7.Text;
-                                Clipboard.SetText(tmp + tmp0 + Environment.NewLine);
+                                System.Windows.Clipboard.SetText(tmp + tmp0 + Environment.NewLine);
 
                                 testStr = "0";
                                 if (!Int16.TryParse(dataGridView1.CurrentRow.Cells[6].Value?.ToString(), out b)) form2.textBox5.Text = testStr;
@@ -756,6 +765,8 @@ namespace WFAGoolgeSheet
                                         {
                                             if (dataGridView1.Rows[++nRow].Visible == false)
                                                 continue;
+                                            if (checkBox4.Checked && (dataGridView1.Rows[nRow].DefaultCellStyle.BackColor != System.Drawing.Color.Aquamarine))
+                                                continue;
                                             dataGridView1.Rows[nRow].Selected = true;
                                             int currentRow = nRow;
                                             dataGridView1.Rows[currentRow].Cells[0].Selected = true;
@@ -773,6 +784,8 @@ namespace WFAGoolgeSheet
                                     //if (nRow < dataGridView1.RowCount)
                                     {
                                         if (dataGridView1.Rows[++nRow].Visible == false)
+                                            continue;
+                                        if (checkBox4.Checked && (dataGridView1.Rows[nRow].DefaultCellStyle.BackColor != System.Drawing.Color.Aquamarine))
                                             continue;
                                         dataGridView1.Rows[nRow].Selected = true;
                                         int currentRow = nRow;
@@ -792,6 +805,8 @@ namespace WFAGoolgeSheet
                                     while (nRow > 0)
                                     {
                                         if (dataGridView1.Rows[--nRow].Visible == false)
+                                            continue;
+                                        if (checkBox4.Checked && (dataGridView1.Rows[nRow].DefaultCellStyle.BackColor != System.Drawing.Color.Aquamarine))
                                             continue;
                                         dataGridView1.Rows[nRow].Selected = true;
                                         int currentRow = nRow;
@@ -871,7 +886,7 @@ namespace WFAGoolgeSheet
         private void DataGridView1_UserDeletingRow(object sender,
     DataGridViewRowCancelEventArgs e)
         {
-            MessageBox.Show("Cannot delete a record!");
+            System.Windows.Forms.MessageBox.Show("Cannot delete a record!");
             e.Cancel = true;
         }
 
@@ -1401,7 +1416,8 @@ namespace WFAGoolgeSheet
                 checkBox3.Checked = true;
                 checkBox2.Visible = false;                  // move
                 checkBox3.Visible = false;                  // delete
-                checkBox4.Visible = false;                  // suggest next
+                checkBox4.Visible = false;
+                button11.Visible = false;                   // suggest next
 
                 checkedListBox1.CheckOnClick = true;
             }
@@ -1430,7 +1446,7 @@ namespace WFAGoolgeSheet
                 button10.Visible = true;
                 checkBox2.Checked = true;                                   // move but dont delete
                 checkBox3.Checked = false;
-                checkBox4.Visible = true;
+                checkBox4.Visible = false; ;
                 checkedListBox1.SetItemChecked(0, true);                    // "N/A";
                 checkedListBox1.SetItemChecked(6, true);                    //"blank";
                 checkedListBox1.SetItemChecked(7, true);                    // "pE"
@@ -1554,12 +1570,12 @@ namespace WFAGoolgeSheet
                     }
                     continue;
                 }
-                MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
             }
         }
 
@@ -1858,7 +1874,7 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Only Spanish".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    MessageBox.Show("duplicate {0}", forchk.ToString());
+                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
                 }
                
             }
@@ -1890,7 +1906,7 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Field Service".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    MessageBox.Show("duplicate {0}", forchk.ToString());
+                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
                 }
             }
             p = p + 2;
@@ -1924,7 +1940,7 @@ namespace WFAGoolgeSheet
                     names2chk[i].Add("Confirmed English".ToString());
                     if (names2chk.Distinct().Count() != names2chk.Count())
                     {
-                        MessageBox.Show("duplicate {0}", forchk.ToString());
+                        System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
                     }
                 }
             }
@@ -1955,7 +1971,7 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Contacted 5 times letters".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    MessageBox.Show("duplicate {0}", forchk.ToString());
+                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
                 }
             }
             p = p + 2;
@@ -2312,6 +2328,227 @@ namespace WFAGoolgeSheet
                 checkedListBox1.SetItemChecked(8, true);                    // "pS"
             }
             button2.BackColor = System.Drawing.Color.LightGreen;
+        }
+
+        //
+        // suggest Next number
+        //
+        public decimal _attempt = 0;
+
+        private void checkBox4_CheckedChanged(object sender, EventArgs e)
+        {
+            Form3 form3 = new Form3();
+            pastTime = DateTimePicker.MinimumDateTime;
+            string[] days = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            foreach (string dow in days)
+                form3.checkedListBox2.Items.Add(dow);
+            string whichM = DateTime.Now.ToString("tt");
+            if (whichM == "AM") form3.radioButton1.Checked = true;
+            else form3.radioButton2.Checked = true;
+
+            int day1 = (int)DateTime.Now.DayOfWeek;
+            form3.checkedListBox2.SetItemChecked(day1, true);
+
+            button11.BackColor = System.Drawing.Color.LightGray;
+            button11.Visible = false;
+            button11.Update();
+
+            if (!checkBox4.Checked)
+                for (int y = 0; y < dataGridView1.Rows.Count; y++)
+                    dataGridView1.Rows[y].DefaultCellStyle.BackColor = System.Drawing.Color.Empty;
+
+            if (_setAM) form3.radioButton1.Checked = true;
+            else form3.radioButton1.Checked = false;
+            if (_setPM) form3.radioButton2.Checked = true;
+            else form3.radioButton2.Checked = false;
+
+            //lst = new List<string>(form3.checkedListBox2.CheckedItems.Cast<string>());
+            for (int count = 0; count < form3.checkedListBox2.Items.Count; count++)
+            {
+                if (lst.Contains(form3.checkedListBox2.Items[count].ToString()))
+                    form3.checkedListBox2.SetItemChecked(count, true);
+                else
+                    form3.checkedListBox2.SetItemChecked(count, false);
+            }
+            if (_attempt == 0) _attempt = 5;
+            if (lastDate == DateTime.MinValue)
+            {
+                lastDate = DateTime.Now;
+                pastTime = DateTime.Now;
+            }
+            form3.monthCalendar1.SelectionStart = lastDate;
+            form3.monthCalendar1.SelectionEnd = pastTime;
+            form3.monthCalendar1.SetDate(lastDate);
+            form3.numericUpDown1.Value = _attempt;
+
+            if (checkBox4.Checked == true)
+            {
+
+                dr = form3.ShowDialog();            // bring up the form
+            }
+
+            if (DialogResult.Cancel == dr)
+            {
+                checkBox4.Checked = false;
+                button11.Visible = false;
+                dataGridView1.MultiSelect = false;
+   
+            }
+            if(DialogResult.OK == dr)
+            {
+                if(form3.setMinstate)setMinDate = true;
+                if (form3.radioButton1.Checked) _setAM = true;
+                if (form3.radioButton2.Checked) _setPM = true;
+                lst = new List<string>(form3.checkedListBox2.CheckedItems.Cast<string>());
+                _attempt = form3.numericUpDown1.Value;
+                if (setMinDate == false)
+                {
+                    pastTime = form3.monthCalendar1.SelectionStart;
+                    lastDate = form3.monthCalendar1.SelectionEnd;
+                }
+                else
+                {
+                    pastTime = DateTime.MinValue;
+                    lastDate = DateTime.MinValue;
+                }
+
+                button11.Visible = true;
+                if (checkBox4.Checked) button11.BackColor = System.Drawing.Color.LightGreen;
+                else button11.BackColor = System.Drawing.Color.LightGray;
+                button11.Update();
+            }
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            Form3 form3 = new Form3();
+            int sel_rows = 0;
+            button11.Visible = true;
+            bool _am = false;
+            bool _pm = false;
+            button11.BackColor = System.Drawing.Color.Coral;
+            button11.Update();
+            DateTime now = DateTime.Now;
+            DateTime pastDate = pastTime;
+            DateTime date = new DateTime();
+            DayOfWeek whatDay = 0;
+
+            dataGridView1.ClearSelection();
+            button2.BackColor = System.Drawing.Color.LightGray;
+            button4.BackColor = System.Drawing.Color.LightGray;
+            startPB(System.Drawing.Color.Aqua);
+
+            for (int y = 0; y < dataGridView1.Rows.Count; y++)
+            {
+                int remainder;
+                Math.DivRem(y, dataGridView1.Rows.Count, out remainder);
+                if (dataGridView1.Rows.Count > 100)
+                    progress = remainder / dataGridView1.Rows.Count;
+                else
+                    progress = remainder * (100 - 1 / dataGridView1.Rows.Count);
+                if (progress < 100) progressBar1.Value = progress;
+                progressBar1.Update();
+
+                bool hasDate = false;
+                bool didMatch = false;
+                _am = false;
+                _pm = false;
+
+                if (dataGridView1.Rows[y].Visible == false)
+                    continue;
+
+                string text = dataGridView1.Rows[y].Cells[5].Value?.ToString();
+                try
+                {
+                    date = DateTime.Parse(text);
+                    hasDate = true;
+                    lastDate = date;
+                    var isAorPm = date.ToString("tt");
+                    if (isAorPm.ToString() == "AM") _am = true;
+                    if (isAorPm.ToString() == "PM") _pm = true;
+                    whatDay = date.DayOfWeek;
+                }
+                catch (Exception ex) { }
+
+                if (hasDate && (setMinDate == false))
+                {
+                    TimeSpan pastDays = now - pastTime;
+                    TimeSpan diff = now - lastDate;
+                    if (diff.Days > pastDays.Days)
+                        didMatch = true;
+                    else
+                        didMatch = false;
+                }
+                //else didMatch = true;
+
+                if ((_setAM || _setPM) && didMatch)
+                {
+                    if ((_setAM && _pm) || (_setPM && _am))
+                        didMatch = true;
+                    else
+                        didMatch = false;
+                }
+                //else didMatch = true;
+                if((_attempt > 0) && didMatch)
+                {
+                    if (!string.IsNullOrEmpty(dataGridView1.Rows[y].Cells[6].Value.ToString()))
+                        {
+                        if (Convert.ToInt32(Convert.ToInt32(dataGridView1.Rows[y].Cells[6].Value.ToString())) > _attempt)
+                            didMatch = false;
+                        else
+                            didMatch = true;
+                        }
+                }
+
+                if ((whatDay != null) && didMatch)
+                {
+                    bool found = false;
+
+                    foreach (string wday in lst)
+                    {
+                        if (wday != whatDay.ToString()) found = true;
+                        break;
+                    }
+                    if (found) didMatch = true;
+                    else didMatch = false;
+                }
+                //else didMatch = true;
+
+                if (didMatch)
+                {
+                    dataGridView1.Rows[y].DefaultCellStyle.BackColor = System.Drawing.Color.Aquamarine;
+                    sel_rows++;
+                }
+
+            }
+            progressBar1.Value = 100;
+
+            DialogResult result = System.Windows.Forms.MessageBox.Show(string.Format(" there are {0} rows recommended. Do you want to accept and work these?", sel_rows),
+                                                                 "Important Question", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                button11.BackColor = System.Drawing.Color.Aquamarine;
+                button11.Update();
+                int y;
+                for (y = 0; y < dataGridView1.Rows.Count; y++)
+                {
+                    if (dataGridView1.Rows[y].DefaultCellStyle.BackColor != System.Drawing.Color.Aquamarine)
+                    {
+                        dataGridView1.Rows[y].Selected = true;
+                        break;
+                    }
+                }
+            }
+            if(result == DialogResult.No)
+            {
+                for (int y = 0; y < dataGridView1.Rows.Count; y++)
+                    dataGridView1.Rows[y].DefaultCellStyle.BackColor = System.Drawing.Color.Empty;
+                button11.BackColor = System.Drawing.Color.LightGray;
+                button11.Update();
+                checkBox4.Checked = false;
+            }
+            dataGridView1.Update();
+            return;
         }
     }
 }

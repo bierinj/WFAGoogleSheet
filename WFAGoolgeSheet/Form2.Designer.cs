@@ -157,9 +157,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(561, 74);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(48, 13);
+            this.label5.Size = new System.Drawing.Size(43, 13);
             this.label5.TabIndex = 9;
-            this.label5.Text = "Attempts";
+            this.label5.Text = "Attempt";
             // 
             // textBox6
             // 
