@@ -15,14 +15,14 @@ namespace WFAGoolgeSheet
         bool preventExit = false;
 
         private void label4_Click(object sender, EventArgs e)
-        {}
+        { }
 
         //
         // OK button processing
         private void button1_Click(object sender, EventArgs e)
         {
             Form1.myVar = textBox6.Text;
-    
+
             //Thread.Sleep(200);
             this.Close();
         }

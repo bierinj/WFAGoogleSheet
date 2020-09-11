@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WFAGoolgeSheet
@@ -17,7 +10,7 @@ namespace WFAGoolgeSheet
             InitializeComponent();
         }
 
-        public bool setMinstate  = false;
+        public bool setMinstate = false;
         //
         // change default format for datepicker
         //
@@ -33,7 +26,7 @@ namespace WFAGoolgeSheet
         private void button3_Click(object sender, EventArgs e)
         {
             setMinstate = true;
-            monthCalendar1.SelectionStart=DateTime.Now;
+            monthCalendar1.SelectionStart = DateTime.Now;
             monthCalendar1.SelectionEnd = DateTime.Now;
         }
         // hide if set to MinimumDateTime
