@@ -1615,6 +1615,9 @@ namespace WFAGoolgeSheet
         //
         private void button12_Click(object sender, EventArgs e)
         {
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.MultiSelect = true;
+
             if (curFound == 0) curFound = firstFound;
             for (int i = curFound + 1; i < dataGridView1.RowCount; i++)
             {
@@ -1622,12 +1625,13 @@ namespace WFAGoolgeSheet
                 if (dataGridView1.Rows[i].Selected)
                 {
                     curFound = i;
-                    //dataGridView1.CurrentCell. = dataGridView1[0,i];
+                    //dataGridView1.CurrentCell = dataGridView1[0, i];
                     seeVisibleRow(dataGridView1, i);
                     break;
                 }
             }
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -2689,23 +2693,48 @@ namespace WFAGoolgeSheet
             {
                 var countVisible = view.DisplayedRowCount(false);
                 var firstVisible = view.FirstDisplayedScrollingRowIndex;
-                if (rowToShow < firstVisible)
+                int i = 0;
+                while (rowToShow < firstVisible)
                 {
-                    view.FirstDisplayedScrollingRowIndex = rowToShow + 1;
+                    if (view.Rows[rowToShow + i++].Visible == false) continue;
+                    view.FirstDisplayedScrollingRowIndex = rowToShow-1;
+                    break;
                 }
-                else if (rowToShow >= firstVisible + countVisible)
+                while(rowToShow >= firstVisible + countVisible-2)
                 {
-                    while (view.Rows[rowToShow - countVisible + 1].Visible == false)
+                    if (view.Rows[rowToShow - (countVisible+2)].Visible == false)
                     {
-                        countVisible++;
+                        firstVisible+=2;
+                        continue;
                     }
-                    view.FirstDisplayedScrollingRowIndex = rowToShow - countVisible + 1;
+                    view.FirstDisplayedScrollingRowIndex = rowToShow - (countVisible);
+                    break;
                 }
             }
         }
 
-    }
+        //
+        // Prev. Search result
+        //
+        private void button13_Click(object sender, EventArgs e)
+        {
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.MultiSelect = true;
 
+            if (curFound == 0) curFound = firstFound;
+            for (int i = curFound-1; i > 0;   --i)
+            {
+                if (dataGridView1.Rows[i].Visible == false) continue;
+                if (dataGridView1.Rows[i].Selected)
+                {
+                    curFound = i;
+                    //dataGridView1.CurrentCell = dataGridView1[0, i];
+                    seeVisibleRow(dataGridView1, i);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
