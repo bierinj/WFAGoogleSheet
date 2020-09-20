@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace WFAGoolgeSheet
@@ -65,7 +66,28 @@ namespace WFAGoolgeSheet
 
         private void Form2_Load(object sender, EventArgs e)
         {
+            Form1 form1 = new Form1();
+            form1.button4.BackColor = System.Drawing.Color.LightGray;
+            form1.button4.Update();
+        }
 
+        //
+        // map via Google
+        //
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            // Get the Google Maps URL with defult zoom.
+            string url = Program.GoogleMapUrl(textBox3.Text, "h", 2);
+
+            // Display the URL in the default browser.
+            Process.Start(url);
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            Form1 form1 = new Form1();
+            if (!form1.checkBox4.Checked && checkBox2.Checked)
+                button2.PerformClick();
         }
     }
 }

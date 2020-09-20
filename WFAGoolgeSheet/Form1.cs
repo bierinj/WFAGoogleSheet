@@ -72,8 +72,9 @@ namespace WFAGoolgeSheet
         int curFound = 0;
         public static string myVar = null;  // passing data between forms
         public static object lockMethod2 = new object();
-        DialogResult dr = new DialogResult();
+        public DialogResult dr = new DialogResult();
         List<String> sSaveRow4Del = new List<String>();
+
         bool done = true;
         int totalRow = 0;
         int totalChgs = 0;
@@ -497,18 +498,37 @@ namespace WFAGoolgeSheet
             if (comboBox1.SelectedIndex == 2)
             {
                 button9.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
+
             }
             if (comboBox1.SelectedIndex == 3)
             {
                 button9.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
+
             }
             if (comboBox1.SelectedIndex == 4)
             {
                 button9.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
+
             }
             if (comboBox1.SelectedIndex == 5)
             {
                 button9.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
             }
             button2.BackColor = System.Drawing.Color.LightGray;
         }
@@ -662,14 +682,22 @@ namespace WFAGoolgeSheet
                                 form2.textBox4.Text = dataGridView1.CurrentRow.Cells[5].Value?.ToString();
                                 string temp1 = textBox3.Text + " of " + textBox5.Text;
                                 form2.textBox8.Text = temp1;
-                                form2.textBox9.Text = textBox2.Text;
+                                //form2.textBox9.Text = textBox2.Text;
+                                form2.textBox9.Text = dataGridView1.CurrentRow.Index.ToString();
 
                                 form2.textBox7.Text = dataGridView1.CurrentRow.Cells[3].Value?.ToString();
                                 string tmp = "";
                                 string tmp0 = "";
                                 if (string.IsNullOrEmpty(form2.textBox1.Text)) tmp = " no phone ";
-                                else tmp = form2.textBox1.Text;
+                                else
+                                {
+                                    ToolTip myToolTip = new ToolTip();
+                                    tmp = form2.textBox1.Text;
+                                    form2.textBox1.BackColor= dataGridView1.Rows[nRow].Cells[0].Style.BackColor;
+                                    myToolTip.SetToolTip(form2.textBox1, dataGridView1.CurrentRow.Cells[0].ToolTipText);
+                                }
                                 form2.textBox1.Update();
+
                                 if (string.IsNullOrEmpty(form2.textBox7.Text)) tmp0 = " ";
                                 else tmp0 = " - city " + form2.textBox7.Text;
                                 try
@@ -737,11 +765,21 @@ namespace WFAGoolgeSheet
                                 form2.textBox6.SelectionStart = form2.textBox6.Text.Length + 4;
                                 form2.textBox6.SelectionLength = 0;
 
+                                form2.checkBox1.Checked = checkBox1.Checked;
+                                form2.checkBox2.Checked = checkBox4.Checked;
+
                                 dr = form2.ShowDialog();        // bring up the form
 
                                 SecondFormLeft = form2.Left;    // save current position for next time
                                 SecondFromTop = form2.Top;
                                 SecondFormSize = form2.Size;
+                                checkBox1.Checked = form2.checkBox1.Checked;
+                                //if (!checkBox4.Checked && form2.checkBox2.Checked)
+                                //{
+                                //    checkBox4.Checked = form2.checkBox2.Checked;
+                                //    dr = DialogResult.Abort;
+                                //}
+                                checkBox4.Checked = form2.checkBox2.Checked;
 
                                 if (dr == DialogResult.OK)
                                 {
@@ -1054,6 +1092,11 @@ namespace WFAGoolgeSheet
                 fCol = null;
                 if (true)
                 {
+                    if (checkBox1.Checked)
+                    {
+                        totalChgs = 1;
+                        begTimInc = DateTime.MinValue;
+                    }
                     nowTimInc = DateTime.Now;
                     if (begTimInc == DateTime.MinValue) begTimInc = nowTimInc;
                     TimeSpan duration = nowTimInc - begTimInc;
@@ -1280,10 +1323,26 @@ namespace WFAGoolgeSheet
                             deleteRequestsList.Add(_deleteRequest);
                             _batchUpdateSpreadsheetRequest.Requests = deleteRequestsList;
                             service.Spreadsheets.BatchUpdate(_batchUpdateSpreadsheetRequest, spreadsheetId).Execute();
-                            dataGridView1.Rows[rowIndex + chgCount - 1].Visible = false;
+
+                            for (int j = 0; j < dataGridView1.Rows.Count; j++)
+                            {
+                                if (dataGridView1.Rows[j].Visible == false) continue;
+                                dataGridView1.Rows[j].Visible = false;
+                                for (int k = j; k < dataGridView1.Rows.Count; k++)
+                                {
+                                    if (dataGridView1.Rows[k].Visible == false) continue;
+                                    dataGridView1.CurrentCell = dataGridView1[0, k];
+                                    break;
+                                }
+                                dataGridView1.Update();
+                                textBox2.Text = string.Format("DG row {0}", j);
+                                textBox2.Update();
+                                break;
+                            }
+                            dataGridView1.Refresh();
                         }
-                        textBox2.Text = string.Format("DG row {0}", rowIndex);
-                        textBox2.Update();
+                        //textBox2.Text = string.Format("DG row {0}", rowIndex);
+                        //textBox2.Update();
                         dataGridView1.Update();
                         sValue.Clear();
                         //}
@@ -1360,7 +1419,7 @@ namespace WFAGoolgeSheet
             if (updateinprogress) return;
             checkBox2.Checked = false;
             checkBox2.Checked = false;
-            button4.BackColor = System.Drawing.Color.LightGreen;
+            //button4.BackColor = System.Drawing.Color.LightGreen;
             int? rowIdx = e?.RowIndex;
             int? colIdx = e?.ColumnIndex;
             if (rowIdx.HasValue && colIdx.HasValue)
@@ -1443,7 +1502,11 @@ namespace WFAGoolgeSheet
             //if (dr == DialogResult.OK)
             //    return;
             if (dr == DialogResult.Abort)
+            {
                 cellch.Clear();
+                DataChanged = false;
+            }
+
             textBox1.Text = cellch.Count.ToString() + " changes";
             textBox1.Update();
             return;
@@ -1530,6 +1593,10 @@ namespace WFAGoolgeSheet
                 label1.Visible = false;
                 checkBox4.Visible = false;
                 checkedListBox1.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
             }
 
             if (comboBox1.SelectedIndex == 3)
@@ -1538,6 +1605,10 @@ namespace WFAGoolgeSheet
                 label1.Visible = false;
                 checkBox4.Visible = false;
                 checkedListBox1.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
             }
 
             if (comboBox1.SelectedIndex == 4)
@@ -1546,6 +1617,10 @@ namespace WFAGoolgeSheet
                 label1.Visible = false;
                 checkBox4.Visible = false;
                 checkedListBox1.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
             }
 
             if (comboBox1.SelectedIndex == 5)
@@ -1554,6 +1629,10 @@ namespace WFAGoolgeSheet
                 label1.Visible = false;
                 checkBox4.Visible = false;
                 checkedListBox1.Visible = false;
+                textBox3.Visible = false;
+                textBox5.Visible = false;
+                label5.Visible = false;
+                label4.Visible = false;
             }
             button2.BackColor = System.Drawing.Color.LightGreen;
         }
@@ -1581,7 +1660,9 @@ namespace WFAGoolgeSheet
         private void Program_SearchDataGrid(object sender, EventArgs e)
         {
             int rowIndex = -1;
+            var rSelected = new List<DataGridViewRow>();
             string searchString = textBox4.Text;
+
             if (searchString == "") return;
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
@@ -1594,7 +1675,12 @@ namespace WFAGoolgeSheet
             }
             if (rowIndex >= 0)
             {
+                //foreach (DataGridViewRow r in dataGridView1.SelectedRows)
+                //    rSelected.Add(r);
                 dataGridView1.CurrentCell = dataGridView1[visibleColumnIndex, rowIndex];
+                seeVisibleRow(dataGridView1, rowIndex);
+                //foreach (DataGridViewRow rs in rSelected)
+                //    dataGridView1.Rows[rs.Index].Selected = true;
             }
             else return;
             //
@@ -1611,12 +1697,45 @@ namespace WFAGoolgeSheet
         }
 
         //
+        // Prev. Search result
+        //
+        private void button13_Click(object sender, EventArgs e)
+        {
+            var rSelected = new List<DataGridViewRow>();
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.MultiSelect = true;
+            foreach (DataGridViewRow r in dataGridView1.SelectedRows)
+                rSelected.Add(r);
+
+            if (curFound == 0) curFound = firstFound;
+            for (int i = curFound - 1; i > 0; --i)
+            {
+                if (dataGridView1.Rows[i].Visible == false) continue;
+                if (dataGridView1.Rows[i].Selected)
+                {
+                    curFound = i;
+                    //dataGridView1.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+                    //Clipboard.SetDataObject(dataGridView1.GetClipboardContent());
+                    dataGridView1.CurrentCell = dataGridView1[0, i];
+                    seeVisibleRow(dataGridView1, i);
+                    break;
+                }
+            }
+            foreach (DataGridViewRow rs in rSelected)
+                dataGridView1.Rows[rs.Index].Selected = true;
+
+        }
+
+        //
         // Find NExt
         //
         private void button12_Click(object sender, EventArgs e)
         {
+            var rSelected = new List<DataGridViewRow>();
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = true;
+            foreach (DataGridViewRow r in dataGridView1.SelectedRows)
+                rSelected.Add(r);
 
             if (curFound == 0) curFound = firstFound;
             for (int i = curFound + 1; i < dataGridView1.RowCount; i++)
@@ -1626,10 +1745,14 @@ namespace WFAGoolgeSheet
                 {
                     curFound = i;
                     //dataGridView1.CurrentCell = dataGridView1[0, i];
+                    dataGridView1.CurrentCell = dataGridView1[0, i];
                     seeVisibleRow(dataGridView1, i);
                     break;
                 }
             }
+            foreach (DataGridViewRow rs in rSelected)
+                dataGridView1.Rows[rs.Index].Selected = true;
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -1641,6 +1764,7 @@ namespace WFAGoolgeSheet
         // search datagrid for value
         private void button6_Click_1(object sender, EventArgs e)
         {
+            var rSelected = new List<DataGridViewRow>();
             string searchValue = "";
             searchValue = textBox4.Text;
             curFound = 0;
@@ -1666,17 +1790,24 @@ namespace WFAGoolgeSheet
                             break;
                         }
                     }
+
                     continue;
                 }
                 System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+
+                foreach (DataGridViewRow r in dataGridView1.SelectedRows)
+                    rSelected.Add(r);
+                dataGridView1.CurrentCell = dataGridView1[visibleColumnIndex, firstFound];
                 seeVisibleRow(dataGridView1, firstFound);
+                foreach (DataGridViewRow rs in rSelected)
+                    dataGridView1.Rows[rs.Index].Selected = true;
+
             }
             catch (Exception ex)
             {
                 System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
             }
         }
-
         //
         // Clear search box and Selected Rows
         //
@@ -2554,10 +2685,11 @@ namespace WFAGoolgeSheet
             int s = -1;
 
             dataGridView1.ClearSelection();
+            cellch.Clear();
+            DataChanged = false;
             button2.BackColor = System.Drawing.Color.LightGray;
             button4.BackColor = System.Drawing.Color.LightGray;
             startPB(System.Drawing.Color.Aqua);
-
             try
             {
                 for (int y = 0; y < dataGridView1.Rows.Count; y++)
@@ -2565,9 +2697,9 @@ namespace WFAGoolgeSheet
                     int remainder;
                     Math.DivRem(y, dataGridView1.Rows.Count, out remainder);
                     if (dataGridView1.Rows.Count > 100)
-                        progress = remainder / dataGridView1.Rows.Count;
+                        progress = remainder / (dataGridView1.Rows.Count/100);
                     else
-                        progress = remainder * (100 - 1 / dataGridView1.Rows.Count);
+                        progress = remainder * ((100 - 1) / dataGridView1.Rows.Count);
                     if (progress < 100) progressBar1.Value = progress;
                     progressBar1.Update();
 
@@ -2587,16 +2719,18 @@ namespace WFAGoolgeSheet
                         lastDate = date;
                         var isAorPm = date.ToString("tt");
                         if (isAorPm.ToString() == "AM") _am = true;
+                        else _am = false;
                         if (isAorPm.ToString() == "PM") _pm = true;
+                        else _pm = false;
                         whatDay = date.DayOfWeek;
                     }
                     catch (Exception ex) { }
 
-                    if (hasDate && (setMinDate == false))
+                    if (hasDate && (setMinDate == false) || string.IsNullOrEmpty(dataGridView1.Rows[y].Cells[4].Value?.ToString()))
                     {
                         TimeSpan pastDays = now - pastTime;
                         TimeSpan diff = now - lastDate;
-                        if (diff.Days > pastDays.Days)
+                        if (diff.Days > pastDays.Days || string.IsNullOrEmpty(dataGridView1.Rows[y].Cells[4].Value?.ToString()))
                             didMatch = true;
                         else
                             didMatch = false;
@@ -2665,6 +2799,7 @@ namespace WFAGoolgeSheet
                         break;
                     }
                 }
+                dataGridView1.CurrentCell = dataGridView1[0, s];
                 seeVisibleRow(dataGridView1, s);
             }
             if (result == DialogResult.No)
@@ -2685,54 +2820,37 @@ namespace WFAGoolgeSheet
         //
         private static void seeVisibleRow(DataGridView view, int rowToShow)
         {
-            while(view.Rows[rowToShow].Visible == false)
-            {
-                rowToShow++;
-            }
-            if (rowToShow >= 0 && rowToShow < view.RowCount)
-            {
-                var countVisible = view.DisplayedRowCount(false);
-                var firstVisible = view.FirstDisplayedScrollingRowIndex;
-                int i = 0;
-                while (rowToShow < firstVisible)
-                {
-                    if (view.Rows[rowToShow + i++].Visible == false) continue;
-                    view.FirstDisplayedScrollingRowIndex = rowToShow-1;
-                    break;
-                }
-                while(rowToShow >= firstVisible + countVisible-2)
-                {
-                    if (view.Rows[rowToShow - (countVisible+2)].Visible == false)
-                    {
-                        firstVisible+=2;
-                        continue;
-                    }
-                    view.FirstDisplayedScrollingRowIndex = rowToShow - (countVisible);
-                    break;
-                }
-            }
-        }
+            int i = 0;
+            var countVisible = view.DisplayedRowCount(false);
 
-        //
-        // Prev. Search result
-        //
-        private void button13_Click(object sender, EventArgs e)
-        {
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.MultiSelect = true;
+            for (i = rowToShow; i > 0; --i)
+                if (view.Rows[i].Visible) break;
 
-            if (curFound == 0) curFound = firstFound;
-            for (int i = curFound-1; i > 0;   --i)
-            {
-                if (dataGridView1.Rows[i].Visible == false) continue;
-                if (dataGridView1.Rows[i].Selected)
-                {
-                    curFound = i;
-                    //dataGridView1.CurrentCell = dataGridView1[0, i];
-                    seeVisibleRow(dataGridView1, i);
-                    break;
-                }
-            }
+            view.FirstDisplayedScrollingRowIndex =  i;
+            //int i = 0;
+            //while (view.Rows[rowToShow+i].Visible == false)
+            //{
+            //    i++;
+            //}
+            //if (rowToShow >= 0 && rowToShow < view.RowCount)
+            //{
+            //    var countVisible = view.DisplayedRowCount(false);
+            //    var firstVisible = view.FirstDisplayedScrollingRowIndex;
+            //    i = 0;
+            //    while (rowToShow < firstVisible -i)
+            //    {
+            //        if (view.Rows[rowToShow - i++].Visible == false) continue;
+            //        view.FirstDisplayedScrollingRowIndex = rowToShow-i;
+            //        break;
+            //    }
+            //    i = 0;
+            //    while(rowToShow >= firstVisible + countVisible +i)
+            //    {
+            //        if (view.Rows[rowToShow +i++ - (countVisible)].Visible == false) continue;
+            //        view.FirstDisplayedScrollingRowIndex = (rowToShow+(i-1)) - (countVisible);
+            //        break;
+            //    }
+            //}
         }
     }
 }

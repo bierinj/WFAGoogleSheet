@@ -508,7 +508,7 @@
             // button11
             // 
             this.button11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button11.Location = new System.Drawing.Point(282, 438);
+            this.button11.Location = new System.Drawing.Point(282, 442);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(100, 23);
             this.button11.TabIndex = 38;
@@ -600,7 +600,7 @@
         private System.Windows.Forms.Button button3;
         public System.Windows.Forms.DataGridView dataGridView1;
         public System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button4;
+        public System.Windows.Forms.Button button4;
         public System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button5;
         public System.Windows.Forms.ComboBox comboBox1;
@@ -632,7 +632,7 @@
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button button10;
-        private System.Windows.Forms.CheckBox checkBox4;
+        public System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button13;

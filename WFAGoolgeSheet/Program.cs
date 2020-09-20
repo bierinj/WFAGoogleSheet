@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Google.GData.Client;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -124,6 +126,48 @@ namespace WFAGoolgeSheet
                     newnum += c.ToString();
             }
             return newnum;
+        }
+
+        //
+        // Return a Google map URL.
+        //
+        public static string GoogleMapUrl(string query, string map_type, int zoom)
+        {
+            // Start with the base map URL.
+            string url = "http://maps.google.com/maps?";
+
+            // Add the query.
+            url += "q=" + HttpUtility.UrlEncode(query, Encoding.UTF8);
+
+            // Add the type.
+            map_type = GoogleMapTypeCode(map_type);
+            if (map_type != null) url += "&t=" + map_type;
+
+            // Add the zoom level.
+            if (zoom > 0) url += "&z=" + zoom.ToString();
+
+            return url;
+        }
+
+        // Return a Google map type code.
+        private static string GoogleMapTypeCode(string map_type)
+        {
+            // Insert the proper type.
+            switch (map_type)
+            {
+                case "Map":
+                    return "m";
+                case "Satellite":
+                    return "k";
+                case "Hybrid":
+                    return "h";
+                case "Terrain":
+                    return "p";
+                case "Google Earth":
+                    return "e";
+                default:
+                    return null;
+            }
         }
 
     }
