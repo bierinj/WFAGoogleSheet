@@ -37,6 +37,7 @@ namespace WFAGoolgeSheet
             comboBox1.Items.Add(new sTabName { tabname = "Confirmed English", range = "!A1:H", keyfield = "Telephone" });
             comboBox1.Items.Add(new sTabName { tabname = "Contacted 5 times letters", range = "!A1:H", keyfield = "TELEPHONE" });
             comboBox1.Items.Add(new sTabName { tabname = "Only Spanish", range = "!A1:H", keyfield = "TELEPHONE" });
+            comboBox1.Items.Add(new sTabName { tabname = "Other", range = "!A1:H", keyfield = "TELEPHONE" });
             comboBox1.Items.Add(new sTabName { tabname = "List of Last names to work", range = "!A1:G", keyfield = "Name" });
             //comboBox1.Items.Add(new sTabName { tabname = "Common First Names", range = "!A1:G", keyfield = "TELEPHONE" });
             comboBox1.SelectedIndex = 1;
@@ -328,6 +329,7 @@ namespace WFAGoolgeSheet
                     var bval = (float)0.0;
                     var rval = (float)0.0;
                     var gval = (float)0.0;
+#if SheetColors == true
                     if (response2.Sheets[0].Data[0].RowData[b].Values[0].EffectiveFormat.BackgroundColor.Blue == null) bval = (float)0.0;
                     else bval = (float)response2.Sheets[0].Data[0].RowData[b].Values[0].EffectiveFormat.BackgroundColor.Blue;
                     if (response2.Sheets[0].Data[0].RowData[b].Values[0].EffectiveFormat.BackgroundColor.Red == null) rval = (float)0.0;
@@ -336,6 +338,7 @@ namespace WFAGoolgeSheet
                     else gval = (float)response2.Sheets[0].Data[0].RowData[b].Values[0].EffectiveFormat.BackgroundColor.Green;
                     System.Drawing.Color tcol = System.Drawing.Color.FromArgb(150, (Int32)(rval * 255), (Int32)(gval * 255), (Int32)(bval * 255));
                     bcolor.Add(tcol.Name);
+#endif
                 }
 
                 NumofRec = 0;
@@ -386,6 +389,7 @@ namespace WFAGoolgeSheet
                         dataGridView1.CurrentCell = dataGridView1[z, x];
                         dataGridView1.CurrentCell.Value = row[z];
                         dataGridView1.Rows[x].Cells[z].Selected = true;
+#if SheetColors == true
                         if (z == 0)
                         {
                             ccolor = Program.HexStringToColor(bcolor[x]);
@@ -405,6 +409,7 @@ namespace WFAGoolgeSheet
                             }
                                 dataGridView1.Rows[x].Cells[0].Style.BackColor = ccolor;
                         }
+#endif
                     }
 
                     if (r1 == -1) r1 = firstrow;
@@ -1241,6 +1246,7 @@ namespace WFAGoolgeSheet
                 string stmp = "";
                 if (Tabname == "Field Service") stmp = "FS";
                 if (Tabname == "Only Spanish") stmp = "SP";
+                if (Tabname == "Other") stmp = "O";
                 if (Tabname == "Contacted 5 times letters") stmp = "5X";
                 if (Tabname == "Confirmed English") stmp = "EN";
                 textBox1.Text = string.Format(stmp + " row {0}", sRow);
@@ -1526,7 +1532,7 @@ namespace WFAGoolgeSheet
             checkedListBox1.Items.Clear();
             if (comboBox1.SelectedIndex == 0 || comboBox1.SelectedIndex == 1)
             {
-                string[] checklist = new string[] { "N/A", "B", "I", "DNC", "SP", "E", "blank", "pE", "pS" };
+                string[] checklist = new string[] { "N/A", "B", "I", "DNC", "SP", "E", "blank", "O", "pE", "pS" };
                 for (int i = 0; i < checklist.Length; i++)
                 {
                     checkedListBox1.Items.Add(checklist[i]);
@@ -2409,7 +2415,7 @@ namespace WFAGoolgeSheet
                 {
                     //-------------------------------------------------------
                     //
-                    // prepare move information to "Only Spanish" or "Confirmed English
+                    // prepare move information to "Only Spanish", "Confirmed English" or "Other"
                     // as part of "Field Service" EOD
                     //
                     //int m = moves.Count;
@@ -2429,6 +2435,10 @@ namespace WFAGoolgeSheet
                     moves.Add(new List<String>());
                     moves[m].Add("pS");
                     moves[m].Add("Only Spanish");
+                    m = moves.Count;
+                    moves.Add(new List<String>());
+                    moves[m].Add("O");
+                    moves[m].Add("Other");
                     m = moves.Count;
                     moves.Add(new List<String>());
                     moves[m].Add("C5");
@@ -2827,30 +2837,6 @@ namespace WFAGoolgeSheet
                 if (view.Rows[i].Visible) break;
 
             view.FirstDisplayedScrollingRowIndex =  i;
-            //int i = 0;
-            //while (view.Rows[rowToShow+i].Visible == false)
-            //{
-            //    i++;
-            //}
-            //if (rowToShow >= 0 && rowToShow < view.RowCount)
-            //{
-            //    var countVisible = view.DisplayedRowCount(false);
-            //    var firstVisible = view.FirstDisplayedScrollingRowIndex;
-            //    i = 0;
-            //    while (rowToShow < firstVisible -i)
-            //    {
-            //        if (view.Rows[rowToShow - i++].Visible == false) continue;
-            //        view.FirstDisplayedScrollingRowIndex = rowToShow-i;
-            //        break;
-            //    }
-            //    i = 0;
-            //    while(rowToShow >= firstVisible + countVisible +i)
-            //    {
-            //        if (view.Rows[rowToShow +i++ - (countVisible)].Visible == false) continue;
-            //        view.FirstDisplayedScrollingRowIndex = (rowToShow+(i-1)) - (countVisible);
-            //        break;
-            //    }
-            //}
         }
     }
 }

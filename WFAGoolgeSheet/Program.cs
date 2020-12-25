@@ -134,7 +134,9 @@ namespace WFAGoolgeSheet
         public static string GoogleMapUrl(string query, string map_type, int zoom)
         {
             // Start with the base map URL.
+            // http://maps.google.com/maps/api/geocode/xml?address=Humberto+Albornoz+1339+Y+Lizarazu+-+Humberto+Albornoz&sensor=false
             string url = "http://maps.google.com/maps?";
+            //string url = "http://maps.google.com/maps/api/geocode/xml?address=";
 
             // Add the query.
             url += "q=" + HttpUtility.UrlEncode(query, Encoding.UTF8);
