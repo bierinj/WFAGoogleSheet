@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 
 namespace WFAGoolgeSheet
@@ -32,6 +33,8 @@ namespace WFAGoolgeSheet
         // Arrays should contain paired parentheses in the same order:
         private static readonly char[] OpenParentheses = { '+', '(', '[', '{' };
         private static readonly char[] CloseParentheses = { '+', ')', ']', '}' };
+
+        public static object WFAgoolgeSheet { get; private set; }
 
         public static bool Check(string input)
         {
@@ -147,7 +150,13 @@ namespace WFAGoolgeSheet
 
             // Add the zoom level.
             if (zoom > 0) url += "&z=" + zoom.ToString();
-
+            GPSgeofence fence = new GPSgeofence();
+            bool p = fence.PointInPolygon(
+                (float)-0.31920, (float)-78.56841);
+            if (p)
+                Console.WriteLine("Point is in");
+            else
+                Console.WriteLine("Point is out");
             return url;
         }
 
