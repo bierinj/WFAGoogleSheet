@@ -46,7 +46,7 @@ namespace WFAGoolgeSheet
                     {
                         Thread.Sleep(50);
                     }
-                    else throw;
+                    //else throw;
                 }
             }
             

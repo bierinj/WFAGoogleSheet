@@ -2,12 +2,13 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace WFAGoolgeSheet
 {
     public partial class Form2 : Form
     {
-        private Form1 form1;
+
         public Form2()
         {
             InitializeComponent();
@@ -15,16 +16,11 @@ namespace WFAGoolgeSheet
 
         bool preventExit = false;
 
-        private void label4_Click(object sender, EventArgs e)
-        { }
-
         //
         // OK button processing
         private void button1_Click(object sender, EventArgs e)
         {
             Form1.myVar = textBox6.Text;
-
-            //Thread.Sleep(200);
             this.Close();
         }
 
@@ -32,22 +28,45 @@ namespace WFAGoolgeSheet
         {
             if (preventExit) e.Cancel = true;
             else e.Cancel = false;
-
         }
         //
         // Exit button processing
         private void button2_Click(object sender, EventArgs e)
         {
-            preventExit = false;
-            this.Close();
+            try
+            {
+                Form2 f2 = (Form2)Application.OpenForms["Form2"];
+                Form4 f4 = (Form4)Application.OpenForms["Form4"];
+                preventExit = false;
+                f2.Close(); f4.Close();
+            }
+            catch (NullReferenceException ne)
+            {
+                //One of the forms is not opened
+                Console.WriteLine(ne.Message);
+            }
+
         }
 
         //
         // Skip / Next - record processing
         private void button3_Click(object sender, EventArgs e)
         {
-            preventExit = false;
-            this.Close();
+            try
+            {
+                Form1 form1 = (Form1)Application.OpenForms["Form1"];
+                Form2 f2 = (Form2)Application.OpenForms["Form2"];
+                Form4 f4 = (Form4)Application.OpenForms["Form4"];
+
+                preventExit = false;
+                f2.Close(); f4.Close();
+            }
+            catch (NullReferenceException ne)
+            {
+                //One of the forms is not opened
+                Console.WriteLine(ne.Message);
+            }
+
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -60,8 +79,20 @@ namespace WFAGoolgeSheet
         //
         private void button4_Click(object sender, EventArgs e)
         {
-            preventExit = false;
-            this.Close();
+            Form1 form1 = (Form1)Application.OpenForms["Form1"];
+            try
+            {
+                Form2 f2 = (Form2)Application.OpenForms["Form2"];
+                Form4 f4 = (Form4)Application.OpenForms["Form4"];
+                preventExit = false;
+                Program.formisup = false;
+                f2.Close(); f4.Close();
+            }
+            catch (NullReferenceException ne)
+            {
+                //One of the forms is not opened
+                Console.WriteLine(ne.Message);
+            }
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -71,20 +102,48 @@ namespace WFAGoolgeSheet
             form1.button4.Update();
             if (checkBox3.Checked)
                 button5.PerformClick();
+            if (checkBox4.Checked)
+                textBox3_TextChanged( sender, e);
         }
 
         //
         // map via Google
         //
-        private void textBox3_TextChanged(object sender, EventArgs e)
+        public void textBox3_TextChanged(object sender, EventArgs e)
         {
-            Form2 form2 = new Form2();
+            Form1 form1 = new Form1();
+            Form4 form4 = new Form4();
+            double lat = 0;
+            double lon = 0;
 
-            // Get the Google Maps URL with defult zoom.
-            string url = Program.GoogleMapUrl(textBox3.Text, "h", 2);
+            if (!string.IsNullOrEmpty(textBox3.Text))
+            {
 
-            // Display the URL in the default browser.
-            Process.Start(url);
+                string streetadr = textBox3.Text;
+                RegexOptions options = RegexOptions.None;               // remove multiple spaces
+                Regex regex = new Regex("[ ]{2,}", options);
+                streetadr = regex.Replace(streetadr, " ");
+                if (streetadr.Length > 120)                             // limit url size
+                    streetadr = streetadr.Substring(0, 120);
+                streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
+                string[] vs = form1.getGPSfromAddr(streetadr, "Quito");
+                //form4.Size = form1.SecondFormSize;
+                if(vs[0] == "X")
+                {
+                    //textBox6.AppendText(" GPS location not found");
+                    return;
+                }
+                lat = Convert.ToDouble(vs[2]);
+                lon = Convert.ToDouble(vs[3]);
+                form4.LoadIntoMap(lat, lon);
+
+                /*DialogResult dr =*/
+                form4.Show();        // bring up the form
+           
+            }
+            else
+                textBox6.AppendText(" Address Is Blank");
+            return;
         }
 
 
@@ -97,6 +156,7 @@ namespace WFAGoolgeSheet
 
         private void button5_Click(object sender, EventArgs e)
         {
+            Form1 form1 = new Form1();
             bool inTerritory = false;
             string strx = "";
             string stry = "";
@@ -155,21 +215,21 @@ namespace WFAGoolgeSheet
                 inTerritory = fence.PointInPolygon(x, y);
 
                 if (inTerritory)
-                    NewText = NewText + strx + " " + stry + " - location in Territory";
+                    NewText = NewText + strx + " " + stry + " - location in Territory ";
                 else
-                    NewText = NewText + strx + " " + stry + " - location not in Territory";
-                //textBox6.Text = textBox6.Text + Environment.NewLine + NewText + Environment.NewLine;
+                {
+                    if(x == form1.notfoundlat && y == form1.notfoundlon)
+                        NewText = "\n GPS location not found ";
+                    else
+                        NewText = NewText + strx + " " + stry + " - location not in Territory - ";
+                }
 
             }
             else
                 NewText = "Address or Co-ordinates are blank!";
-            textBox6.AppendText(Environment.NewLine + NewText + Environment.NewLine);
+            textBox6.AppendText(Environment.NewLine + NewText);
         }
 
-        private void AppendText()
-        {
-            throw new NotImplementedException();
-        }
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {

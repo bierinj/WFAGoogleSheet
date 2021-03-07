@@ -19,7 +19,6 @@ namespace WFAGoolgeSheet
         [STAThread]
 
 
-
         static void Main()
         {
             Application.EnableVisualStyles();
@@ -33,7 +32,7 @@ namespace WFAGoolgeSheet
         // Arrays should contain paired parentheses in the same order:
         private static readonly char[] OpenParentheses = { '+', '(', '[', '{' };
         private static readonly char[] CloseParentheses = { '+', ')', ']', '}' };
-
+        public static bool formisup = false;
         public static object WFAgoolgeSheet { get; private set; }
 
         public static bool Check(string input)

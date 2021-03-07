@@ -25,43 +25,12 @@ namespace WFAGoolgeSheet
         public string bkey = "AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-";
         Form1 form1 = new Form1();
 
-        //
-        // Google parameters
-        //static UserCredential credential;               // Sheet Service
-        //static string ApplicationName = null;
-        //static String spreadsheetId = null;             // Spreadsheet ID
+        public bool GPSfenceDone = false;
+        public int polyCorners = 0;            // how many corners the polygon has
+        public List<float> polyX = new List<float>();
+        public List<float> polyY = new List<float>();
 
-        //private float[] polyX;
-        //-0.32541f,
-        //-0.30631F,
-        //-0.30640F,
-        //-0.33163F,
-        //-0.33103F,
-        //-0.36622F,
-        //-0.37137F,
-        //-0.35979F,
-        //-0.34614F,
-        //-0.32545F,
-        //-0.31189F};  // horizontal coordinates of corners
-        //private float[] polyY;
-        //-78.58218f,
-        //-78.56296F,
-        //-78.55945F,
-        //-78.55515F,
-        //-78.55043F,
-        //-78.55086F,
-        //-78.55919F,
-        //-78.57481F,
-        //-78.58253F,
-        //-78.58271F,
-        //-78.56975F};                        // vertical coordinates of corners
-
-        bool GPSfenceDone = false;
-        int polyCorners = 0;            // how many corners the polygon has
-
-
-        List<float> polyX = new List<float>();
-        List<float> polyY = new List<float>();
+        static bool firstTime = true;
 
         //float x, y = 0;                                   // point to be tested
 

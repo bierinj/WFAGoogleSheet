@@ -20,5 +20,17 @@
     <Setting Name="TestSheet" Type="System.String" Scope="User">
       <Value Profile="(Default)">19GUMT85eHJc0ksM1R-W06LjCMIUg4KNC1bzQneWJ6DU</Value>
     </Setting>
+    <Setting Name="F1State" Type="System.Windows.Forms.FormWindowState" Scope="User">
+      <Value Profile="(Default)">Normal</Value>
+    </Setting>
+    <Setting Name="F1Location" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">0, 0</Value>
+    </Setting>
+    <Setting Name="F1Size" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">0, 0</Value>
+    </Setting>
+    <Setting Name="Language" Type="System.String" Scope="User">
+      <Value Profile="(Default)">sp-EC</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
