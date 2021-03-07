@@ -6,9 +6,11 @@ using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
+using System.Drawing;  
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Web;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -32,7 +34,7 @@ namespace WFAGoolgeSheet
         {
             InitializeComponent();
 
-            comboBox1.Items.Add(new sTabName { tabname = "Imported Names", range = "!A1:H", keyfield = "TELEPHONE" });
+            comboBox1.Items.Add(new sTabName { tabname = "Imported Names", range = "!A1:K", keyfield = "TELEPHONE" });
             comboBox1.Items.Add(new sTabName { tabname = "Field Service", range = "!A1:I", keyfield = "Field Service" });
             comboBox1.Items.Add(new sTabName { tabname = "Confirmed English", range = "!A1:H", keyfield = "Telephone" });
             comboBox1.Items.Add(new sTabName { tabname = "Contacted 5 times letters", range = "!A1:H", keyfield = "TELEPHONE" });
@@ -109,9 +111,9 @@ namespace WFAGoolgeSheet
 
         //
         // Google parameters
-        static UserCredential credential;               // Sheet Service
-        static string ApplicationName = null;
-        static String spreadsheetId = null;             // Spreadsheet ID
+        public UserCredential credential;               // Sheet Service
+        public string ApplicationName = null;
+        public String spreadsheetId = null;             // Spreadsheet ID
 
 
 
@@ -621,6 +623,7 @@ namespace WFAGoolgeSheet
             int intIndex = e.RowIndex;
             //int i = 0;
             dataGridView1.MultiSelect = false;
+            bool localAutoGPS = false;
 
             while (dr == DialogResult.OK || dr == DialogResult.None || dr == DialogResult.No || dr == DialogResult.Retry)
             {
@@ -772,7 +775,9 @@ namespace WFAGoolgeSheet
 
                                 form2.checkBox1.Checked = checkBox1.Checked;
                                 form2.checkBox2.Checked = checkBox4.Checked;
-
+                                form2.checkBox3.Checked = localAutoGPS;
+                                if (form2.checkBox3.Checked)
+                                    form2.button5.PerformClick();
                                 dr = form2.ShowDialog();        // bring up the form
 
                                 SecondFormLeft = form2.Left;    // save current position for next time
@@ -785,6 +790,7 @@ namespace WFAGoolgeSheet
                                 //    dr = DialogResult.Abort;
                                 //}
                                 checkBox4.Checked = form2.checkBox2.Checked;
+                                localAutoGPS = form2.checkBox3.Checked;
 
                                 if (dr == DialogResult.OK)
                                 {
@@ -1404,7 +1410,7 @@ namespace WFAGoolgeSheet
             cellch.Clear();
         }
 
-        private void startPB(System.Drawing.Color color)
+        public void startPB(System.Drawing.Color color)
         {
 
             if (isProcessRunning) return;
@@ -1761,6 +1767,11 @@ namespace WFAGoolgeSheet
 
         }
 
+        //
+        // find DGV column index by name
+        //
+        private int GetindexOf(DataGridView dgv, string name)
+        { return dgv.Columns[name].Index; }
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -1882,39 +1893,88 @@ namespace WFAGoolgeSheet
                 if (radioButton2.Checked) spreadsheetId = Properties.Settings.Default.ProdSheet;
                 progressBar1.Value = 3;
                 progressBar1.Update();
-                String range = "Common First Names!A1:A";
-                SpreadsheetsResource.ValuesResource.GetRequest request =
-                        service.Spreadsheets.Values.Get(spreadsheetId, range);
-                ValueRange response = request.Execute();
-
-                //SpreadsheetsResource.GetRequest request = service.Spreadsheets.Get(spreadsheetId);
-                //request.Ranges = range;
-                //request.IncludeGridData = true;
-                //Google.Apis.Sheets.v4.Data.Spreadsheet response = request.Execute();
-
+                //String range = "Common First Names!A1:A";
+                //SpreadsheetsResource.ValuesResource.GetRequest request =
+                //        service.Spreadsheets.Values.Get(spreadsheetId, range);
+                //ValueRange response = request.Execute();
 
                 textBox1.Text = ".. reading data";
                 textBox1.Update();
-                names2chk.Clear();
+                //names2chk.Clear();
                 DataChanged = true;
-
-                IList<IList<Object>> values = response.Values;
+                int numOfSP = 0;
+                int numOfEN = 0;
+                int numOfSkip = 0;
+                IList<IList<Object>> values = null;
 
                 int i;
-                foreach (var row in values)
+                bool found = false;
+                for (i = 0; i < totalRow; i++)
                 {
-                    i = names2chk.Count;
-                    names2chk.Add(new List<String>()); //Adds new sub List
-                    names2chk[i].Add(values[i][0].ToString()); //Add values to the sub List at index 0
-                    names2chk[i].Add(" ".ToString());
+                    int CurrentRow = i;
+                    
+                    if (dataGridView1.CurrentRow.Visible)
+                    {
+                        dataGridView1.CurrentRow.Selected = true;
+                        dataGridView1.Rows[CurrentRow].Cells[GetindexOf(dataGridView1, "ADDRESS")].Selected = true;
+                        dataGridView1.Update();
+                        Thread.Sleep(100);                // give form a chance to update
+                        string streetadr = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "ADDRESS")].Value?.ToString();
+                        RegexOptions options = RegexOptions.None;               // remove multiple spaces
+                        Regex regex = new Regex("[ ]{2,}", options);
+                        streetadr = regex.Replace(streetadr, " ");
+                        if (streetadr.Length > 120)                             // limit url size
+                            streetadr = streetadr.Substring(0, 120);
+                        streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
+                        string[] vs = getGPSfromAddr(streetadr);
+                        dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Value = today.ToString("yyyy-MM-dd");
+                        if (vs == null || vs[0] == "E")
+                        {
+                            found = false;
+                            if (vs != null)
+                            {
+                                dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "O";
+                                dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = vs[1];
+                                dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Latitude")].Value = vs[2];
+                                dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Longitude")].Value = vs[3];
+                                numOfSP++;
+                                textBox7.Text = string.Format("found {0}", numOfSP);
+                                textBox7.Update();
+                            }
+                            else
+                            {
+                                dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "E";
+                                numOfSkip++;
+                                textBox8.Text = string.Format("found {0}", numOfSkip);
+                                textBox8.Update();
+                            }
+                        }
+
+                        else
+                        {
+                            found = true;
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "I";
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = vs[1];
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Latitude")].Value = vs[2];
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Longitude")].Value = vs[3];
+                            numOfEN++;
+                            textBox6.Text = string.Format("found {0}", numOfEN);
+                            textBox6.Update();
+                        }
+                    }
+                    continue;
                 }
+                //foreach (var row in values)
+                //{
+                //    i = names2chk.Count;
+                //    names2chk.Add(new List<String>()); //Adds new sub List
+                //    names2chk[i].Add(values[i][0].ToString()); //Add values to the sub List at index 0
+                //    names2chk[i].Add(" ".ToString());
+                //}
                 progressBar1.Value = 4;
                 progressBar1.Update();
 
                 dataGridView1.Visible = false;
-                int numOfSP = 0;
-                int numOfEN = 0;
-                int numOfSkip = 0;
 
                 //
                 // set up destination tabs for Imported Names
@@ -1952,14 +2012,13 @@ namespace WFAGoolgeSheet
                     goto LB2;
                 }
                 int l = 0;
-                bool found = false;
                 int c = cellch.Count;
 
                 foreach (var row in values)
                 {
                     string names = dataGridView1.CurrentRow.Cells[1].Value?.ToString();
                     string phone = dataGridView1.CurrentRow.Cells[0].Value?.ToString();
-                    if (string.IsNullOrEmpty(names) || string.IsNullOrEmpty(phone))
+                    if (string.IsNullOrEmpty(names) || string.IsNullOrEmpty(phone));
                     {
                         numOfSkip++;
                         nRow++;
@@ -1975,21 +2034,22 @@ namespace WFAGoolgeSheet
                         cellch[c].Add(phone);
                     }
 
-                    string[] nameList = names.Split(' ');
-                    found = false;
-                    foreach (string name in nameList)
-                    {
-                        for (l = 0; l < names2chk.Count; l++)
-                        {
-                            if (names2chk[l][0].ToString().ToUpper() == name.ToUpper())
-                            {
-                                found = true;
-                                break;
-                            }
-                            if (found) break;
-                        }
+                    //string[] nameList = names.Split(' ');
+                    //found = false;
+                    //foreach (string name in nameList)
+                    //{
+                    //    for (l = 0; l < names2chk.Count; l++)
+                    //    {
+                    //        if (names2chk[l][0].ToString().ToUpper() == name.ToUpper())
+                    //        {
+                    //            found = true;
+                    //            break;
+                    //        }
+                    //        if (found) break;
+                    //    }
 
-                    }
+                    //}
+     
 
                     if (found)
                     {
@@ -2087,6 +2147,65 @@ namespace WFAGoolgeSheet
             return;
         }
 
+        //
+        // get GPS coordinates from address
+        //
+        private string[] getGPSfromAddr(string address)
+        {
+            bool inTerritory = false;
+            string strx = "";
+            string stry = "";
+            int pos = -1;
+            int pos1 = -1;
+            string NewText = "";
+            HttpWebRequestHandler hTTPrequest = new HttpWebRequestHandler();
+            //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&userLocation=-&userIp={-}&usermapView={usermapView}&includeNeighborhood=includeNeighborhood&maxResults={maxResults}&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS
+            string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=-&postalCode=-&addressLine=" + address + "&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS";
+            if (!string.IsNullOrEmpty(address))
+            {
+                var webReply = hTTPrequest.GetReply(webAdr);
+                pos = webReply.IndexOf("\"coordinates\":");
+                pos1 = webReply.IndexOf("\"confidence\":");
+                if (pos1 > -1)
+                    NewText = webReply.Substring(pos1 + 14, 1);
+                if (pos > -1)
+                {
+                    string pwebReply = webReply.Substring(pos, 56);
+                    pos = pwebReply.IndexOf(',');
+                    strx = pwebReply.Substring(15, pos - 15);
+
+                    int pos2 = pwebReply.IndexOf(']');
+                    stry = pwebReply.Substring(pos + 1, (pos2 - pos) - 1);
+                }
+                else return (null);
+            }
+            else return (null);
+            pos = -1;
+
+            if (!string.IsNullOrEmpty(strx) || !string.IsNullOrEmpty(strx))
+            {
+                float x = float.Parse(strx);
+                float y = float.Parse(stry);
+
+                GPSgeofence gPSgeofence = new GPSgeofence();
+                GPSgeofence fence = gPSgeofence;
+                fence.ReadGPSfence();
+                inTerritory = fence.PointInPolygon(x, y);
+
+                if (inTerritory)
+                {
+                    string[] retText = { "G", NewText, strx, stry };
+                    return (retText);
+                }
+                else
+                {
+                    string[] retText = { "E", NewText, strx, stry };
+                    return (retText);
+                }
+            }
+            else
+                return (null);
+        }
 
         //
         // Get all known phone numbers

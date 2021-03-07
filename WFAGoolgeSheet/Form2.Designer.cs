@@ -68,6 +68,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.textBox12 = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // textBox1
@@ -102,6 +103,7 @@
             this.textBox3.TabIndex = 2;
             this.textBox3.TabStop = false;
             this.textBox3.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBox3_TextChanged);
+            this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged_1);
             // 
             // textBox4
             // 
@@ -480,11 +482,24 @@
             this.label13.TabIndex = 38;
             this.label13.Text = "both";
             // 
+            // checkBox3
+            // 
+            this.checkBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(219, 386);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(73, 17);
+            this.checkBox3.TabIndex = 39;
+            this.checkBox3.Text = "Auto GPS";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(708, 410);
+            this.Controls.Add(this.checkBox3);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.textBox12);
             this.Controls.Add(this.label12);
@@ -569,12 +584,13 @@
         public System.Windows.Forms.CheckBox checkBox1;
         public System.Windows.Forms.CheckBox checkBox2;
         public System.Windows.Forms.RadioButton radioButton7;
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TextBox textBox10;
         private System.Windows.Forms.TextBox textBox11;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox12;
         private System.Windows.Forms.Label label13;
+        public System.Windows.Forms.CheckBox checkBox3;
+        public System.Windows.Forms.Button button5;
     }
 }

@@ -604,7 +604,7 @@
         public System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button5;
         public System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        public System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox2;

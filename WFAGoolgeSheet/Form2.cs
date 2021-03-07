@@ -69,6 +69,8 @@ namespace WFAGoolgeSheet
             Form1 form1 = new Form1();
             form1.button4.BackColor = System.Drawing.Color.LightGray;
             form1.button4.Update();
+            if (checkBox3.Checked)
+                button5.PerformClick();
         }
 
         //
@@ -99,9 +101,31 @@ namespace WFAGoolgeSheet
             string strx = "";
             string stry = "";
             int pos = -1;
-
-            //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&userLocation=-&userIp={-}&usermapView={usermapView}&includeNeighborhood=includeNeighborhood&maxResults={maxResults}&key="AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS"
-            //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&key="AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS"
+            int pos1 = -1;
+            string NewText = "";
+            HttpWebRequestHandler hTTPrequest = new HttpWebRequestHandler();
+            //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&userLocation=-&userIp={-}&usermapView={usermapView}&includeNeighborhood=includeNeighborhood&maxResults={maxResults}&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS
+            string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=-&postalCode=-&addressLine="+ textBox3.Text +"&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS";
+            if(!string.IsNullOrEmpty(textBox3.Text))
+            {
+                var webReply = hTTPrequest.GetReply(webAdr);
+                pos = webReply.IndexOf("\"coordinates\":");
+                pos1 = webReply.IndexOf("\"confidence\":");
+                if (pos1 > -1)
+                    NewText = "confidence is " + webReply.Substring(pos1+14, 6) +"  ";
+                if (pos > -1)
+                {
+                    string pwebReply = webReply.Substring(pos, 56);
+                    pos = pwebReply.IndexOf(',');
+                    textBox10.Text = pwebReply.Substring(15, pos - 15);
+                    textBox10.Refresh();
+                    int pos2 = pwebReply.IndexOf(']');
+                    textBox11.Text = pwebReply.Substring(pos + 1, (pos2 - pos) - 1);
+                    textBox11.Refresh();
+                }
+            }
+            
+            pos = -1;
             pos = textBox12.Text.IndexOf(",");
             if (!String.IsNullOrEmpty(textBox12.Text)&&(pos != -1))
             {
@@ -119,24 +143,44 @@ namespace WFAGoolgeSheet
                 strx = textBox10.Text;
                 stry = textBox11.Text;
             }
-            float x = float.Parse(strx);
-            float y = float.Parse(stry);
-            string NewText = "";
-            GPSgeofence gPSgeofence = new GPSgeofence();
-            GPSgeofence fence = gPSgeofence;
-            inTerritory = fence.PointInPolygon(x, y);
-            if (inTerritory)
-                NewText = strx + " " + stry + " - location in Territory";
-            else
-                NewText = strx + " " + stry + " - location not in Territory";
-            //textBox6.Text = textBox6.Text + Environment.NewLine + NewText + Environment.NewLine;
-            textBox6.AppendText(Environment.NewLine + NewText + Environment.NewLine);
 
+            if (!string.IsNullOrEmpty(strx) || !string.IsNullOrEmpty(strx))
+            {
+                float x = float.Parse(strx);
+                float y = float.Parse(stry);
+
+                GPSgeofence gPSgeofence = new GPSgeofence();
+                GPSgeofence fence = gPSgeofence;
+                fence.ReadGPSfence();
+                inTerritory = fence.PointInPolygon(x, y);
+
+                if (inTerritory)
+                    NewText = NewText + strx + " " + stry + " - location in Territory";
+                else
+                    NewText = NewText + strx + " " + stry + " - location not in Territory";
+                //textBox6.Text = textBox6.Text + Environment.NewLine + NewText + Environment.NewLine;
+
+            }
+            else
+                NewText = "Address or Co-ordinates are blank!";
+            textBox6.AppendText(Environment.NewLine + NewText + Environment.NewLine);
         }
 
         private void AppendText()
         {
             throw new NotImplementedException();
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked)
+                button5.PerformClick();
+        }
+
+        private void textBox3_TextChanged_1(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked)
+                button5.PerformClick();
         }
     }
 }
