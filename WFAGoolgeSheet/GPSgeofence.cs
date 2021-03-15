@@ -94,8 +94,11 @@ namespace WFAGoolgeSheet
             String range = "GeoFence Data!A4:C";
             SpreadsheetsResource.ValuesResource.GetRequest request =
                     service.Spreadsheets.Values.Get(form1.spreadsheetId, range);
+            // use retry function as task
             ValueRange response = request.Execute();
+            //ValueRange response = Program.Try<System.String>(request.Execute(), (int)2);
             polyCorners = response.Values.Count;
+
             form1.textBox1.Text = ".. reading data";
             form1.textBox1.Update();
             for(int i=0; i < polyCorners; i++)

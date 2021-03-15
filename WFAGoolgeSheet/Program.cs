@@ -6,7 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.ComponentModel;
-
+using System.Threading.Tasks;
+using System.Net;
+using System.Web.UI;
+using System.Linq;
 
 namespace WFAGoolgeSheet
 {
@@ -113,6 +116,12 @@ namespace WFAGoolgeSheet
             }
             return color;
         }
+
+        internal static Google.Apis.Sheets.v4.Data.ValueRange Try<T>(Google.Apis.Sheets.v4.Data.ValueRange valueRange, int v)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Extract only the hex digits from a string.
         /// </summary>
@@ -178,6 +187,57 @@ namespace WFAGoolgeSheet
                 default:
                     return null;
             }
+        }
+
+        //
+        // translate a textbox
+        //
+        public static String GTranslate(String sentance)
+        {
+            string RetSentance="";
+            var toLanguage = "sp";//Spanish
+            var fromLanguage = "en";//English
+            var punctuation = sentance.Where(Char.IsPunctuation).Distinct().ToArray();
+            var words = sentance.Split().Select(x => x.Trim(punctuation));
+            foreach(var word in words)
+            {
+                var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
+                var webClient = new WebClient
+                {
+                    Encoding = System.Text.Encoding.UTF8
+                };
+                var result = webClient.DownloadString(url);
+                try
+                {
+                    result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
+                    RetSentance = RetSentance + " "+ result;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            return (RetSentance);
+        }
+
+        //Get the HtmlAgilityPack here: http://www.codeplex.com/htmlagilitypack
+        public static async Task<T> Try<T>(this Func<T> func, int retries)
+        {
+            var i = 0;
+            do
+            {
+                
+                try
+                {
+                    return await Task.Run(func);
+                    //Task t1 = Task.Run(() => Method1());
+                }
+                catch (TaskCanceledException exception)
+                {
+                    Console.WriteLine(exception.Message);
+                }
+            } while (i++ < retries);
+            return default(T);
         }
 
     }

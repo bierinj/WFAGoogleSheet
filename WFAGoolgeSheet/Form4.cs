@@ -31,8 +31,25 @@ namespace WFAGoolgeSheet
         public Form4()
         {
             InitializeComponent();
+            this.Activated += new EventHandler(Sub_LostFocus);
+            this.Deactivate += new EventHandler(Sub_LostFocus);
         }
 
+        private void Sub_GotFocus(object sender, EventArgs e)
+        {
+            //MessageBox.Show("'" + this.Text + "' got focus");
+        }
+        private void Sub_LostFocus(object sender, EventArgs e)
+        {
+            Form4 form4 = new Form4();
+            //MessageBox.Show("'" + this.Text + "' lost focus");
+
+            //this.Show();
+            form4.WindowState = FormWindowState.Normal;
+            //form4.BringToFront();
+            //form4.TopLevel = true;
+            form4.Focus();
+        }
         private void Form4_Load(object sender, EventArgs e)
         {
             if (Properties.Settings.Default.F1Size.Width == 0 || Properties.Settings.Default.F1Size.Height == 0)
