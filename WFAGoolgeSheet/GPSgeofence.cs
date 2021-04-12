@@ -1,48 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Globalization;
-using BingMapsRESTToolkit;
-using BingMapsRESTToolkit.Extensions;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Util.Store;
-using System.Threading;
-
-namespace WFAGoolgeSheet
+﻿namespace WFAGoolgeSheet
 {
+    using Google.Apis.Auth.OAuth2;
+    using Google.Apis.Services;
+    using Google.Apis.Sheets.v4;
+    using Google.Apis.Sheets.v4.Data;
+    using Google.Apis.Util.Store;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Threading;
+
+    /// <summary>
+    /// Defines the <see cref="GPSgeofence" />.
+    /// </summary>
     public partial class GPSgeofence : Component
     {
         // static GPS fence values
         // and Bing Maps values  (now gotten from Property Settings)
-        //public string bkey = "AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-";
-        //public string bkey = "jMmdrenAuBACeBF4wiMI~EF5zUEU-xM8LHMB3-QHUoQ ~AmPpbe7dnuP6CnHC3cJv1rRZePrR6GhZhLS91DFeqG682d9bDJqb7oguquGq2-cC";
-        //public string bkey = "AvP6VJeoU5ewXQPPt8Q0ce0r_-B3SWb6Ix1Zt5Ece0CyjXSmr1MdorJWGQfJ9UfD";
+     //
+     //
+     //
+        /// <summary>
+        /// Defines the bkey.
+        /// </summary>
         public string bkey = Properties.Settings.Default.WebKey;
-        Form1 form1 = new Form1();
 
+        /// <summary>
+        /// Defines the form1.
+        /// </summary>
+        internal Form1 form1 = new Form1();
+
+        /// <summary>
+        /// Defines the GPSfenceDone.
+        /// </summary>
         public bool GPSfenceDone = false;
-        public int polyCorners = 0;            // how many corners the polygon has
+
+        /// <summary>
+        /// Defines the polyCorners.
+        /// </summary>
+        public int polyCorners = 0;// how many corners the polygon has
+
+        /// <summary>
+        /// Defines the polyX.
+        /// </summary>
         public List<float> polyX = new List<float>();
+
+        /// <summary>
+        /// Defines the polyY.
+        /// </summary>
         public List<float> polyY = new List<float>();
+
+        /// <summary>
+        /// Defines the fenceName.
+        /// </summary>
         public string fenceName;
 
-        static bool firstTime = true;
+        /// <summary>
+        /// Defines the firstTime.
+        /// </summary>
+        internal static bool firstTime = true;
 
         //float x, y = 0;                                   // point to be tested
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GPSgeofence"/> class.
+        /// </summary>
         public GPSgeofence()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GPSgeofence"/> class.
+        /// </summary>
+        /// <param name="container">The container<see cref="IContainer"/>.</param>
         public GPSgeofence(IContainer container)
         {
             container.Add(this);
@@ -50,6 +81,9 @@ namespace WFAGoolgeSheet
             InitializeComponent();
         }
 
+        /// <summary>
+        /// The ReadGPSfence.
+        /// </summary>
         public void ReadGPSfence()
         {
             if (GPSfenceDone) return;
@@ -105,7 +139,7 @@ namespace WFAGoolgeSheet
 
             form1.textBox1.Text = ".. reading data";
             form1.textBox1.Update();
-            for(int i=0; i < polyCorners; i++)
+            for (int i = 0; i < polyCorners; i++)
             {
                 fenceName = response.Values[i][3].ToString();
                 float tempx;
@@ -133,6 +167,12 @@ namespace WFAGoolgeSheet
         //
         //  Note that division by zero is avoided because the division is protected
         //  by the "if" clause which surrounds it.
+        /// <summary>
+        /// The PointInPolygon.
+        /// </summary>
+        /// <param name="x">The x<see cref="float"/>.</param>
+        /// <param name="y">The y<see cref="float"/>.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         public bool PointInPolygon(float x, float y)
         {
             int i, j = polyCorners - 1;
@@ -152,4 +192,3 @@ namespace WFAGoolgeSheet
         }
     }
 }
-

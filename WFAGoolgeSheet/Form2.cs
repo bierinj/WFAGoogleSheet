@@ -1,18 +1,19 @@
-﻿
-using System;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Threading;
-using System.Linq;
-using Microsoft.Win32;
-
-namespace WFAGoolgeSheet
+﻿namespace WFAGoolgeSheet
 {
+    using Microsoft.Win32;
+    using System;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+
+    /// <summary>
+    /// Defines the <see cref="Form2" />.
+    /// </summary>
     public partial class Form2 : Form
     {
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Form2"/> class.
+        /// </summary>
         public Form2()
         {
             InitializeComponent();
@@ -24,14 +25,38 @@ namespace WFAGoolgeSheet
             formIsUp = true;
         }
 
-        bool formIsUp = false;
-        bool preventExit = false;
-        bool inTerritory = false;
-        string strx = "";
-        string stry = "";
+        /// <summary>
+        /// Defines the formIsUp.
+        /// </summary>
+        internal bool formIsUp = false;
+
+        /// <summary>
+        /// Defines the preventExit.
+        /// </summary>
+        internal bool preventExit = false;
+
+        /// <summary>
+        /// Defines the inTerritory.
+        /// </summary>
+        internal bool inTerritory = false;
+
+        /// <summary>
+        /// Defines the strx.
+        /// </summary>
+        internal string strx = "";
+
+        /// <summary>
+        /// Defines the stry.
+        /// </summary>
+        internal string stry = "";
 
         //
         // OK button processing
+        /// <summary>
+        /// The button1_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button1_Click(object sender, EventArgs e)
         {
             try
@@ -55,6 +80,11 @@ namespace WFAGoolgeSheet
             }
         }
 
+        /// <summary>
+        /// The Form2_FormClosing.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="Object"/>.</param>
+        /// <param name="e">The e<see cref="FormClosingEventArgs"/>.</param>
         private void Form2_FormClosing(Object sender, FormClosingEventArgs e)
         {
             SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
@@ -63,7 +93,13 @@ namespace WFAGoolgeSheet
             else e.Cancel = false;
             formIsUp = false;
         }
-        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+
+        /// <summary>
+        /// The SystemEvents_UserPreferenceChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="UserPreferenceChangedEventArgs"/>.</param>
+        internal void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
             if (e.Category == UserPreferenceCategory.Window)
             {
@@ -73,6 +109,11 @@ namespace WFAGoolgeSheet
 
         //
         // Exit button processing
+        /// <summary>
+        /// The button2_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -88,11 +129,15 @@ namespace WFAGoolgeSheet
                 //One of the forms is not opened
                 Console.WriteLine(ne.Message);
             }
-
         }
 
         //
         // Skip / Next - record processing
+        /// <summary>
+        /// The button3_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button3_Click(object sender, EventArgs e)
         {
             try
@@ -109,17 +154,25 @@ namespace WFAGoolgeSheet
                 //One of the forms is not opened
                 Console.WriteLine(ne.Message);
             }
-
         }
 
+        /// <summary>
+        /// The textBox1_TextChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-
         }
 
         //
         // Skip back button
         //
+        /// <summary>
+        /// The button4_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button4_Click(object sender, EventArgs e)
         {
             Form1 form1 = (Form1)Application.OpenForms["Form1"];
@@ -128,7 +181,7 @@ namespace WFAGoolgeSheet
                 Form2 f2 = (Form2)Application.OpenForms["Form2"];
                 Form4 f4 = (Form4)Application.OpenForms["Form4"];
                 preventExit = false;
-                formIsUp  = false;
+                formIsUp = false;
                 f2.Close(); f4.Close();
             }
             catch (NullReferenceException ne)
@@ -138,6 +191,11 @@ namespace WFAGoolgeSheet
             }
         }
 
+        /// <summary>
+        /// The Form2_Load.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void Form2_Load(object sender, EventArgs e)
         {
             Form4 f4 = (Form4)Application.OpenForms["Form4"];
@@ -179,6 +237,11 @@ namespace WFAGoolgeSheet
         //
         // map via Google
         //
+        /// <summary>
+        /// The textBox3_TextChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         public void textBox3_TextChanged(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -197,7 +260,7 @@ namespace WFAGoolgeSheet
                 streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
                 string[] vs = form1.getGPSfromAddr(streetadr, "Quito");
                 //form4.Size = form1.SecondFormSize;
-                if(vs != null && vs[0] == "X")
+                if (vs != null && vs[0] == "X")
                     return;
                 if (!string.IsNullOrEmpty(textBox10.Text) && !string.IsNullOrEmpty(textBox11.Text))
                 {
@@ -219,13 +282,18 @@ namespace WFAGoolgeSheet
                 form4.Show();
 
             }
-            
+
             else
                 textBox6.AppendText(" Address Is Blank");
             //textBox6.Text = Program.GTranslate(textBox6.Text);
             return;
         }
 
+        /// <summary>
+        /// The checkBox2_CheckedChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -233,6 +301,11 @@ namespace WFAGoolgeSheet
                 button2.PerformClick();
         }
 
+        /// <summary>
+        /// The button5_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button5_Click(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -245,7 +318,7 @@ namespace WFAGoolgeSheet
             {
                 HttpWebRequestHandler hTTPrequest = new HttpWebRequestHandler();
                 //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&userLocation=-&userIp={-}&usermapView={usermapView}&includeNeighborhood=includeNeighborhood&maxResults={maxResults}&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS
-                string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=-&postalCode=-&addressLine=" + textBox3.Text + "&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS";
+                string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=-&postalCode=-&addressLine=" + textBox3.Text + "&key=";
                 if (!string.IsNullOrEmpty(textBox3.Text))
                 {
                     var webReply = hTTPrequest.GetReply(webAdr);
@@ -265,7 +338,7 @@ namespace WFAGoolgeSheet
                     }
                 }
             }
-            
+
             strx = textBox10.Text;
             stry = textBox11.Text;
             if (!string.IsNullOrEmpty(strx) && !string.IsNullOrEmpty(strx))
@@ -301,18 +374,33 @@ namespace WFAGoolgeSheet
             }
         }
 
+        /// <summary>
+        /// The checkBox3_CheckedChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        { 
+        {
             if (checkBox3.Checked)
                 button5.PerformClick();
         }
 
+        /// <summary>
+        /// The textBox3_TextChanged_1.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void textBox3_TextChanged_1(object sender, EventArgs e)
         {
             if (checkBox3.Checked)
                 button5.PerformClick();
         }
 
+        /// <summary>
+        /// The button6_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button6_Click(object sender, EventArgs e)
         {
             Form1 f1 = (Form1)Application.OpenForms["Form1"];
@@ -343,16 +431,30 @@ namespace WFAGoolgeSheet
                 textBox6.AppendText("\n GPS NOT saved - Latitude or Longitude are blank");
         }
 
+        /// <summary>
+        /// The checkBox4_CheckedChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox4.Checked && checkBox4.Focused) textBox3_TextChanged(sender, e);
         }
 
+        /// <summary>
+        /// The radioButton10_CheckedChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void radioButton10_CheckedChanged(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The groupBox1_Validated.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void groupBox1_Validated(object sender, EventArgs e)
         {
             Form1 f1 = (Form1)Application.OpenForms["Form1"];

@@ -1,29 +1,28 @@
-﻿using Google.GData.Client;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Net;
-using System.Web.UI;
-using System.Linq;
-using static WFAGoolgeSheet.Form1;
-
-namespace WFAGoolgeSheet
+﻿namespace WFAGoolgeSheet
 {
-    static class Program
-    {
+    using Google.GData.Client;
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Net;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
 
+    /// <summary>
+    /// Defines the <see cref="Program" />.
+    /// </summary>
+    internal static class Program
+    {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
 
 
-        static void Main()
+        internal static void Main()
         {
             Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
@@ -34,11 +33,31 @@ namespace WFAGoolgeSheet
         // remove + from changes array
         //
         // Arrays should contain paired parentheses in the same order:
+        /// <summary>
+        /// Defines the OpenParentheses.
+        /// </summary>
         private static readonly char[] OpenParentheses = { '+', '(', '[', '{' };
+
+        /// <summary>
+        /// Defines the CloseParentheses.
+        /// </summary>
         private static readonly char[] CloseParentheses = { '+', ')', ']', '}' };
+
+        /// <summary>
+        /// Defines the formisup.
+        /// </summary>
         public static bool formisup = false;
+
+        /// <summary>
+        /// Gets the WFAgoolgeSheet.
+        /// </summary>
         public static object WFAgoolgeSheet { get; private set; }
 
+        /// <summary>
+        /// The Check.
+        /// </summary>
+        /// <param name="input">The input<see cref="string"/>.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool Check(string input)
         {
             // Indices of the currently open parentheses:
@@ -68,7 +87,12 @@ namespace WFAGoolgeSheet
 
         //
         // map column to spreadsheet letter
-        //    
+        //
+        /// <summary>
+        /// The ColumnAdress.
+        /// </summary>
+        /// <param name="col">The col<see cref="int"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string ColumnAdress(int col)
         {
             col++;
@@ -85,7 +109,8 @@ namespace WFAGoolgeSheet
         /// <summary>
         /// Convert a hex string to a .NET Color object.
         /// </summary>
-        /// <param name="hexColor">a hex string: "FFFFFF", "#000000"</param>
+        /// <param name="hexColor">a hex string: "FFFFFF", "#000000".</param>
+        /// <returns>The <see cref="Color"/>.</returns>
         public static Color HexStringToColor(string hexColor)
         {
             string hc = ExtractHexDigits(hexColor);
@@ -118,6 +143,13 @@ namespace WFAGoolgeSheet
             return color;
         }
 
+        /// <summary>
+        /// The Try.
+        /// </summary>
+        /// <typeparam name="T">.</typeparam>
+        /// <param name="valueRange">The valueRange<see cref="Google.Apis.Sheets.v4.Data.ValueRange"/>.</param>
+        /// <param name="v">The v<see cref="int"/>.</param>
+        /// <returns>The <see cref="Google.Apis.Sheets.v4.Data.ValueRange"/>.</returns>
         internal static Google.Apis.Sheets.v4.Data.ValueRange Try<T>(Google.Apis.Sheets.v4.Data.ValueRange valueRange, int v)
         {
             throw new NotImplementedException();
@@ -126,6 +158,8 @@ namespace WFAGoolgeSheet
         /// <summary>
         /// Extract only the hex digits from a string.
         /// </summary>
+        /// <param name="input">The input<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string ExtractHexDigits(string input)
         {
             // remove any characters that are not digits (like #)
@@ -143,6 +177,13 @@ namespace WFAGoolgeSheet
         //
         // Return a Google map URL.
         //
+        /// <summary>
+        /// The GoogleMapUrl.
+        /// </summary>
+        /// <param name="query">The query<see cref="string"/>.</param>
+        /// <param name="map_type">The map_type<see cref="string"/>.</param>
+        /// <param name="zoom">The zoom<see cref="int"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string GoogleMapUrl(string query, string map_type, int zoom)
         {
             // Start with the base map URL.
@@ -170,6 +211,11 @@ namespace WFAGoolgeSheet
         }
 
         // Return a Google map type code.
+        /// <summary>
+        /// The GoogleMapTypeCode.
+        /// </summary>
+        /// <param name="map_type">The map_type<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private static string GoogleMapTypeCode(string map_type)
         {
             // Insert the proper type.
@@ -193,14 +239,19 @@ namespace WFAGoolgeSheet
         //
         // translate a textbox
         //
+        /// <summary>
+        /// The GTranslate.
+        /// </summary>
+        /// <param name="sentance">The sentance<see cref="String"/>.</param>
+        /// <returns>The <see cref="String"/>.</returns>
         public static String GTranslate(String sentance)
         {
-            string RetSentance="";
+            string RetSentance = "";
             var toLanguage = "sp";//Spanish
             var fromLanguage = "en";//English
             var punctuation = sentance.Where(Char.IsPunctuation).Distinct().ToArray();
             var words = sentance.Split().Select(x => x.Trim(punctuation));
-            foreach(var word in words)
+            foreach (var word in words)
             {
                 var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
                 var webClient = new WebClient
@@ -211,7 +262,7 @@ namespace WFAGoolgeSheet
                 try
                 {
                     result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
-                    RetSentance = RetSentance + " "+ result;
+                    RetSentance = RetSentance + " " + result;
                 }
                 catch
                 {
@@ -222,11 +273,18 @@ namespace WFAGoolgeSheet
         }
 
         //Get the HtmlAgilityPack here: http://www.codeplex.com/htmlagilitypack
+        /// <summary>
+        /// The Try.
+        /// </summary>
+        /// <typeparam name="T">.</typeparam>
+        /// <param name="func">The func<see cref="Func{T}"/>.</param>
+        /// <param name="retries">The retries<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{T}"/>.</returns>
         public static async Task<T> Try<T>(this Func<T> func, int retries)
         {
             var i = 0;
             do
-            {    
+            {
                 try
                 {
                     return await Task.Run(func);
@@ -239,9 +297,5 @@ namespace WFAGoolgeSheet
             } while (i++ < retries);
             return default(T);
         }
-        
     }
 }
-
-
-

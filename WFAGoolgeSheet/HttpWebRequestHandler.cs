@@ -1,20 +1,27 @@
-﻿using System;
-using System.ServiceModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Data.Services;
-using System.Net;
-using System.IO;
-using System.ServiceModel.Channels;
-
-namespace WFAGoolgeSheet
+﻿namespace WFAGoolgeSheet
 {
-        public class HttpWebRequestHandler : IRequestHandler
-        {
+    using System;
+    using System.Data.Services;
+    using System.IO;
+    using System.Net;
+    using System.ServiceModel.Channels;
+    using System.Threading;
+
+    /// <summary>
+    /// Defines the <see cref="HttpWebRequestHandler" />.
+    /// </summary>
+    public class HttpWebRequestHandler : IRequestHandler
+    {
+        /// <summary>
+        /// Gets the RequestConstants.
+        /// </summary>
         public object RequestConstants { get; private set; }
 
+        /// <summary>
+        /// The GetReply.
+        /// </summary>
+        /// <param name="url">The url<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public string GetReply(string url)
         {
             var content = string.Empty;
@@ -49,13 +56,18 @@ namespace WFAGoolgeSheet
                     //else throw;
                 }
             }
-            
+
             return content;
         }
+
+        /// <summary>
+        /// The ProcessRequestForMessage.
+        /// </summary>
+        /// <param name="messageBody">The messageBody<see cref="Stream"/>.</param>
+        /// <returns>The <see cref="Message"/>.</returns>
         public Message ProcessRequestForMessage(Stream messageBody)
         {
             throw new NotImplementedException();
         }
     }
 }
-

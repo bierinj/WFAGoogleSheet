@@ -1,38 +1,59 @@
-﻿using GMap.NET.WindowsForms;
-using GMap.NET.WindowsForms.Markers;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Windows.Documents;
-//using System.Windows.Documents;
-using System.Windows.Forms;
-using Microsoft.Win32;
-
-namespace WFAGoolgeSheet
+﻿namespace WFAGoolgeSheet
 {
-    public partial class Form4: Form
+    using GMap.NET.WindowsForms;
+    using GMap.NET.WindowsForms.Markers;
+    using Microsoft.Win32;
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Windows.Forms;
+
+    /// <summary>
+    /// Defines the <see cref="Form4" />.
+    /// </summary>
+    public partial class Form4 : Form
     {
+        /// <summary>
+        /// Gets a value indicating whether ShowWithoutActivation.
+        /// </summary>
         protected override bool ShowWithoutActivation
         {
             get { return true; }
         }
 
+        /// <summary>
+        /// Gets the mapSource.
+        /// </summary>
         public string mapSource { get; private set; }
 
-        double lat;
-        double lon;
+        /// <summary>
+        /// Defines the lat.
+        /// </summary>
+        internal double lat;
 
-        static GMapOverlay markersOverlay = null;
-        static GMarkerGoogle marker = null;
+        /// <summary>
+        /// Defines the lon.
+        /// </summary>
+        internal double lon;
 
-        bool textupdate = false;
+        /// <summary>
+        /// Defines the markersOverlay.
+        /// </summary>
+        internal static GMapOverlay markersOverlay = null;
 
+        /// <summary>
+        /// Defines the marker.
+        /// </summary>
+        internal static GMarkerGoogle marker = null;
+
+        /// <summary>
+        /// Defines the textupdate.
+        /// </summary>
+        internal bool textupdate = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Form4"/> class.
+        /// </summary>
         public Form4()
         {
             InitializeComponent();
@@ -45,10 +66,20 @@ namespace WFAGoolgeSheet
             this.Deactivate += new EventHandler(Sub_LostFocus);
         }
 
+        /// <summary>
+        /// The Sub_GotFocus.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void Sub_GotFocus(object sender, EventArgs e)
         {
-            //MessageBox.Show("'" + this.Text + "' got focus");
         }
+
+        /// <summary>
+        /// The Sub_LostFocus.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void Sub_LostFocus(object sender, EventArgs e)
         {
             Form4 form4 = new Form4();
@@ -61,7 +92,12 @@ namespace WFAGoolgeSheet
             form4.Focus();
         }
 
-        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        /// <summary>
+        /// The SystemEvents_UserPreferenceChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="UserPreferenceChangedEventArgs"/>.</param>
+        internal void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
             if (e.Category == UserPreferenceCategory.Window)
             {
@@ -69,10 +105,21 @@ namespace WFAGoolgeSheet
             }
         }
 
-        void Form4_FormClosing(object sender, FormClosingEventArgs e)
+        /// <summary>
+        /// The Form4_FormClosing.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="FormClosingEventArgs"/>.</param>
+        internal void Form4_FormClosing(object sender, FormClosingEventArgs e)
         {
             SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
         }
+
+        /// <summary>
+        /// The Form4_Load.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void Form4_Load(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -119,14 +166,22 @@ namespace WFAGoolgeSheet
                 this.Location = Properties.Settings.Default.F1Location;
                 this.Size = Properties.Settings.Default.F1Size;
             }
-
         }
 
+        /// <summary>
+        /// The label1_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void label1_Click(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The LoadIntoMap.
+        /// </summary>
+        /// <param name="latitude">The latitude<see cref="double"/>.</param>
+        /// <param name="longitude">The longitude<see cref="double"/>.</param>
         public void LoadIntoMap(double latitude, double longitude)
         {
             Form1 form1 = new Form1();
@@ -166,28 +221,28 @@ namespace WFAGoolgeSheet
 
             //map.MapProvider = GMap.NET.MapProviders.OpenStreetMapQuestHybridProvider.Instance;
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
-                object p = map.SetPositionByKeywords("Quito, Ecuador");
+            object p = map.SetPositionByKeywords("Quito, Ecuador");
 
-                // add GeoFence
-                GPSgeofence gPSgeofence = new GPSgeofence();
-                GPSgeofence fence = gPSgeofence;
-                fence.ReadGPSfence();
-                GMapOverlay polyOverlay = new GMapOverlay("polygons");
-                IList<GMap.NET.PointLatLng> points = new List<GMap.NET.PointLatLng>();
-                for (int i = 0; i < fence.polyCorners; i++)
-                {
-                    double.TryParse(fence.polyX[i].ToString(), out lat);
-                    double.TryParse(fence.polyY[i].ToString(), out lon);
-                    points.Add(new GMap.NET.PointLatLng(lat, lon));
-                }
+            // add GeoFence
+            GPSgeofence gPSgeofence = new GPSgeofence();
+            GPSgeofence fence = gPSgeofence;
+            fence.ReadGPSfence();
+            GMapOverlay polyOverlay = new GMapOverlay("polygons");
+            IList<GMap.NET.PointLatLng> points = new List<GMap.NET.PointLatLng>();
+            for (int i = 0; i < fence.polyCorners; i++)
+            {
+                double.TryParse(fence.polyX[i].ToString(), out lat);
+                double.TryParse(fence.polyY[i].ToString(), out lon);
+                points.Add(new GMap.NET.PointLatLng(lat, lon));
+            }
 
-                GMapPolygon polygon = new GMapPolygon((List <GMap.NET.PointLatLng>)points, "mypolygon");
-                polygon.Fill = new SolidBrush(Color.FromArgb(50, Color.Red));
-                polygon.Stroke = new Pen(Color.Red, 1);
-                polyOverlay.Polygons.Add(polygon);
-                map.Overlays.Add(polyOverlay);
-                markersOverlay = new GMapOverlay("markers");
-                Program.formisup = true;
+            GMapPolygon polygon = new GMapPolygon((List<GMap.NET.PointLatLng>)points, "mypolygon");
+            polygon.Fill = new SolidBrush(Color.FromArgb(50, Color.Red));
+            polygon.Stroke = new Pen(Color.Red, 1);
+            polyOverlay.Polygons.Add(polygon);
+            map.Overlays.Add(polyOverlay);
+            markersOverlay = new GMapOverlay("markers");
+            Program.formisup = true;
             map.MinZoom = 1;
             map.MaxZoom = 18;
 
@@ -200,19 +255,29 @@ namespace WFAGoolgeSheet
             //
             marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon),
                   GMarkerGoogleType.green);
-                map.Position = new GMap.NET.PointLatLng(lat, lon);
-                markersOverlay.Markers.Add(marker);
-                map.Overlays.Add(markersOverlay);
-                map.ZoomAndCenterMarkers(markersOverlay.Id);         
-                map.Update();
+            map.Position = new GMap.NET.PointLatLng(lat, lon);
+            markersOverlay.Markers.Add(marker);
+            map.Overlays.Add(markersOverlay);
+            map.ZoomAndCenterMarkers(markersOverlay.Id);
+            map.Update();
         }
 
+        /// <summary>
+        /// The OnFormExit.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="FormClosingEventArgs"/>.</param>
         private void OnFormExit(object sender, FormClosingEventArgs e)
         {
             Form1 form1 = new Form1();
             Program.formisup = false;
         }
 
+        /// <summary>
+        /// The formSizeChange.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void formSizeChange(object sender, EventArgs e)
         {
             Properties.Settings.Default.F1State = this.WindowState;
@@ -228,11 +293,11 @@ namespace WFAGoolgeSheet
                 Properties.Settings.Default.F1Location = this.RestoreBounds.Location;
                 Properties.Settings.Default.F1Size = this.RestoreBounds.Size;
             }
-
-            // don't forget to save the settings
-            //Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// The ZoomChange.
+        /// </summary>
         private void ZoomChange()
         {
             textupdate = true;
@@ -241,6 +306,11 @@ namespace WFAGoolgeSheet
             textupdate = false;
         }
 
+        /// <summary>
+        /// The savPos_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void savPos_Click(object sender, EventArgs e)
         {
             formSizeChange(sender, e);
@@ -248,6 +318,11 @@ namespace WFAGoolgeSheet
             Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// The savZoom_Click.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void savZoom_Click(object sender, EventArgs e)
         {
             //Properties.Settings.Default.gMapZoom = (float)map.Zoom;
@@ -256,16 +331,25 @@ namespace WFAGoolgeSheet
             this.Close();
         }
 
+        /// <summary>
+        /// The zoomlvl_TextChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void zoomlvl_TextChanged(object sender, EventArgs e)
         {
-            if(!textupdate)
+            if (!textupdate)
             {
                 map.ZoomAndCenterMarkers(markersOverlay.Id);
                 map.Update();
             }
-
         }
 
+        /// <summary>
+        /// The comboBox1_SelectedValueChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void comboBox1_SelectedValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.gMapSource = (string)comboBox1.SelectedItem;
