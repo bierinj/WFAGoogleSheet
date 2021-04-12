@@ -21,14 +21,18 @@ namespace WFAGoolgeSheet
     public partial class GPSgeofence : Component
     {
         // static GPS fence values
-        // and Bing Maps values
-        public string bkey = "AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-";
+        // and Bing Maps values  (now gotten from Property Settings)
+        //public string bkey = "AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-";
+        //public string bkey = "jMmdrenAuBACeBF4wiMI~EF5zUEU-xM8LHMB3-QHUoQ ~AmPpbe7dnuP6CnHC3cJv1rRZePrR6GhZhLS91DFeqG682d9bDJqb7oguquGq2-cC";
+        //public string bkey = "AvP6VJeoU5ewXQPPt8Q0ce0r_-B3SWb6Ix1Zt5Ece0CyjXSmr1MdorJWGQfJ9UfD";
+        public string bkey = Properties.Settings.Default.WebKey;
         Form1 form1 = new Form1();
 
         public bool GPSfenceDone = false;
         public int polyCorners = 0;            // how many corners the polygon has
         public List<float> polyX = new List<float>();
         public List<float> polyY = new List<float>();
+        public string fenceName;
 
         static bool firstTime = true;
 
@@ -91,7 +95,7 @@ namespace WFAGoolgeSheet
             if (form1.radioButton2.Checked) form1.spreadsheetId = Properties.Settings.Default.ProdSheet;
             form1.progressBar1.Value = 3;
             form1.progressBar1.Update();
-            String range = "GeoFence Data!A4:C";
+            String range = "GeoFence Data!A4:D";
             SpreadsheetsResource.ValuesResource.GetRequest request =
                     service.Spreadsheets.Values.Get(form1.spreadsheetId, range);
             // use retry function as task
@@ -103,7 +107,7 @@ namespace WFAGoolgeSheet
             form1.textBox1.Update();
             for(int i=0; i < polyCorners; i++)
             {
-                //polyX = $"{response.Values[i][1]}F";
+                fenceName = response.Values[i][3].ToString();
                 float tempx;
                 float.TryParse(response.Values[i][1].ToString(), out tempx);
                 polyX.Add(tempx);
@@ -112,6 +116,7 @@ namespace WFAGoolgeSheet
             }
             GPSfenceDone = true;
         }
+
         //  Globals which should be set before calling this function:
         //
         //  int    polyCorners  =  how many corners the polygon has
@@ -128,7 +133,6 @@ namespace WFAGoolgeSheet
         //
         //  Note that division by zero is avoided because the division is protected
         //  by the "if" clause which surrounds it.
-
         public bool PointInPolygon(float x, float y)
         {
             int i, j = polyCorners - 1;

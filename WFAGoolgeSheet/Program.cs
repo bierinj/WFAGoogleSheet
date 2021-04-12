@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Web.UI;
 using System.Linq;
+using static WFAGoolgeSheet.Form1;
 
 namespace WFAGoolgeSheet
 {
@@ -225,8 +226,7 @@ namespace WFAGoolgeSheet
         {
             var i = 0;
             do
-            {
-                
+            {    
                 try
                 {
                     return await Task.Run(func);
@@ -239,7 +239,7 @@ namespace WFAGoolgeSheet
             } while (i++ < retries);
             return default(T);
         }
-
+        
     }
 }
 

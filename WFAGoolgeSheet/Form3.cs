@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace WFAGoolgeSheet
 {
@@ -8,6 +9,23 @@ namespace WFAGoolgeSheet
         public Form3()
         {
             InitializeComponent();
+
+            this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+            this.FormClosing += new FormClosingEventHandler(Form3_FormClosing);
+        }
+
+        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.Window)
+            {
+                this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            }
+        }
+
+        void Form3_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
         }
 
         public bool setMinstate = false;

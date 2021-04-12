@@ -12,6 +12,7 @@ using System.Threading;
 using System.Windows.Documents;
 //using System.Windows.Documents;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace WFAGoolgeSheet
 {
@@ -22,15 +23,24 @@ namespace WFAGoolgeSheet
             get { return true; }
         }
 
+        public string mapSource { get; private set; }
+
         double lat;
         double lon;
 
         static GMapOverlay markersOverlay = null;
         static GMarkerGoogle marker = null;
 
+        bool textupdate = false;
+
         public Form4()
         {
             InitializeComponent();
+
+            //this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            //SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+            //this.FormClosing += new FormClosingEventHandler(Form4_FormClosing);
+
             this.Activated += new EventHandler(Sub_LostFocus);
             this.Deactivate += new EventHandler(Sub_LostFocus);
         }
@@ -50,8 +60,50 @@ namespace WFAGoolgeSheet
             //form4.TopLevel = true;
             form4.Focus();
         }
+
+        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.Window)
+            {
+                this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            }
+        }
+
+        void Form4_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+        }
         private void Form4_Load(object sender, EventArgs e)
         {
+            Form1 form1 = new Form1();
+            if (form1.radioButton5.Checked)
+            {
+                int i = form1.comboBox1.SelectedIndex;
+                //ChangeLanguage to Ecuadorian Spanish
+                string language = "es-EC";
+
+                // Save user choice in settings
+                Properties.Settings.Default.Language = "es-EC";
+                Properties.Settings.Default.Save();
+
+                form1.ChangeLanguage(language);
+                form1.comboBox1.SelectedIndex = i;
+                form1.Refresh();
+            }
+            if (form1.radioButton6.Checked)
+            {
+                int i = form1.comboBox1.SelectedIndex;
+                //ChangeLanguage to American English
+                string language = "en-US";
+
+                // Save user choice in settings
+                Properties.Settings.Default.Language = "en-US";
+                Properties.Settings.Default.Save();
+
+                form1.ChangeLanguage(language);
+                form1.comboBox1.SelectedIndex = i;
+                form1.Refresh();
+            }
             if (Properties.Settings.Default.F1Size.Width == 0 || Properties.Settings.Default.F1Size.Height == 0)
             {
                 // first start
@@ -84,10 +136,38 @@ namespace WFAGoolgeSheet
             map.DragButton = MouseButtons.Left;
             map.MouseWheelZoomEnabled = true;
 
-                // Initialize map:
-                map.MapProvider = GMap.NET.MapProviders.BingMapProvider.Instance;
-                GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
+            // Initialize map:
+            comboBox1.SelectedItem = Properties.Settings.Default.gMapSource;
+            mapSource = (string)comboBox1.SelectedItem;
+            switch (mapSource)
+            {
+                case "BingMaps":
+                    map.MapProvider = GMap.NET.MapProviders.BingMapProvider.Instance;
+                    break;
+                case "GoogleMaps":
+                    map.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
+                    break;
+                case "ArcGISMaps":
+                    map.MapProvider = GMap.NET.MapProviders.ArcGIS_StreetMap_World_2D_MapProvider.Instance;
+                    break;
+                case "OpenStreetMap":
+                    map.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
+                    break;
+                case "Yandex":
+                    map.MapProvider = GMap.NET.MapProviders.YandexHybridMapProvider.Instance;
+                    break;
+                case "OpenCycleMaps":
+                    map.MapProvider = GMap.NET.MapProviders.OpenCycleMapProvider.Instance;
+                    break;
+                default:
+                    map.MapProvider = GMap.NET.MapProviders.BingMapProvider.Instance;
+                    break;
+            }
+
+            //map.MapProvider = GMap.NET.MapProviders.OpenStreetMapQuestHybridProvider.Instance;
+            GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
                 object p = map.SetPositionByKeywords("Quito, Ecuador");
+
                 // add GeoFence
                 GPSgeofence gPSgeofence = new GPSgeofence();
                 GPSgeofence fence = gPSgeofence;
@@ -110,8 +190,9 @@ namespace WFAGoolgeSheet
                 Program.formisup = true;
             map.MinZoom = 1;
             map.MaxZoom = 18;
-            map.Zoom = 10;
-          
+
+            map.Zoom = Properties.Settings.Default.gMapZoom;
+            zoomlvl.Text = map.Zoom.ToString("0.00");
             lat = latitude;
             lon = longitude;
             //
@@ -122,7 +203,7 @@ namespace WFAGoolgeSheet
                 map.Position = new GMap.NET.PointLatLng(lat, lon);
                 markersOverlay.Markers.Add(marker);
                 map.Overlays.Add(markersOverlay);
-                map.ZoomAndCenterMarkers(markersOverlay.Id);
+                map.ZoomAndCenterMarkers(markersOverlay.Id);         
                 map.Update();
         }
 
@@ -130,8 +211,6 @@ namespace WFAGoolgeSheet
         {
             Form1 form1 = new Form1();
             Program.formisup = false;
-            var zoomlevel = map.Zoom;
-            Console.WriteLine(zoomlevel);
         }
 
         private void formSizeChange(object sender, EventArgs e)
@@ -151,7 +230,49 @@ namespace WFAGoolgeSheet
             }
 
             // don't forget to save the settings
+            //Properties.Settings.Default.Save();
+        }
+
+        private void ZoomChange()
+        {
+            textupdate = true;
+            zoomlvl.Text = map.Zoom.ToString("0.00");
+            //if (!textupdate)zoomlvl.Update();
+            textupdate = false;
+        }
+
+        private void savPos_Click(object sender, EventArgs e)
+        {
+            formSizeChange(sender, e);
+            // don't forget to save the settings
             Properties.Settings.Default.Save();
+        }
+
+        private void savZoom_Click(object sender, EventArgs e)
+        {
+            //Properties.Settings.Default.gMapZoom = (float)map.Zoom;
+            // don't forget to save the settings
+            //Properties.Settings.Default.Save();
+            this.Close();
+        }
+
+        private void zoomlvl_TextChanged(object sender, EventArgs e)
+        {
+            if(!textupdate)
+            {
+                map.ZoomAndCenterMarkers(markersOverlay.Id);
+                map.Update();
+            }
+
+        }
+
+        private void comboBox1_SelectedValueChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.gMapSource = (string)comboBox1.SelectedItem;
+            map.Refresh();
+            map.Update();
+            Properties.Settings.Default.Save();
+            LoadIntoMap(lat, lon);
         }
     }
 }

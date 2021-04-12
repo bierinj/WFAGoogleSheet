@@ -133,13 +133,62 @@ namespace WFAGoolgeSheet.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sp-EC")]
+        [global::System.Configuration.DefaultSettingValueAttribute("en-US")]
         public string Language {
             get {
                 return ((string)(this["Language"]));
             }
             set {
                 this["Language"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public float gMapZoom {
+            get {
+                return ((float)(this["gMapZoom"]));
+            }
+            set {
+                this["gMapZoom"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("BingMapProvider")]
+        public string gMapSource {
+            get {
+                return ((string)(this["gMapSource"]));
+            }
+            set {
+                this["gMapSource"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("AvP6VJeoU5ewXQPPt8Q0ce0r_-B3SWb6Ix1Zt5Ece0CyjXSmr1MdorJWGQfJ9UfD")]
+        public string WebKey {
+            get {
+                return ((string)(this["WebKey"]));
+            }
+            set {
+                this["WebKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict" +
+            "=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&key=")]
+        public string WebURL {
+            get {
+                return ((string)(this["WebURL"]));
+            }
+            set {
+                this["WebURL"] = value;
             }
         }
     }

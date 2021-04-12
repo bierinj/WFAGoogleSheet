@@ -11,11 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Globalization;
 using System.Threading;
-using System.Resources;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows;
 using System.ComponentModel;
+using Microsoft.Win32;
 
 namespace WFAGoolgeSheet
 {
@@ -28,27 +28,25 @@ namespace WFAGoolgeSheet
         public System.Uri Source { get; set; }
         public class sTabName
         {
-
+            public string langName { get; set; }
             public string tabname { get; set; }
             public string range { get; set; }
             public string keyfield { get; set; }
-            public override string ToString() { return this.tabname; }
+            public override string ToString() { return this.langName; }
         }
 
         public Form1()
         {
             Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(language);
+
             InitializeComponent();
 
-            comboBox1.Items.Add(new sTabName { tabname = "Imported Names", range = "!A1:K", keyfield = "TELEPHONE" });
-            comboBox1.Items.Add(new sTabName { tabname = "Field Service", range = "!A1:K", keyfield = "Field Service" });
-            comboBox1.Items.Add(new sTabName { tabname = "Confirmed English", range = "!A1:K", keyfield = "Telephone" });
-            comboBox1.Items.Add(new sTabName { tabname = "Contacted 5 times letters", range = "!A1:K", keyfield = "TELEPHONE" });
-            comboBox1.Items.Add(new sTabName { tabname = "Only Spanish", range = "!A1:K", keyfield = "TELEPHONE" });
-            comboBox1.Items.Add(new sTabName { tabname = "Other", range = "!A1:K", keyfield = "TELEPHONE" });
-            comboBox1.Items.Add(new sTabName { tabname = "List of Last names to work", range = "!A1:G", keyfield = "Name" });
-            //comboBox1.Items.Add(new sTabName { tabname = "Common First Names", range = "!A1:G", keyfield = "TELEPHONE" });
-            comboBox1.SelectedIndex = 1;
+            this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+            this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
+
+
+            BuildComboBoxItems(1);
         }
 
         public DataGridView myDG { get { return dataGridView1; } }
@@ -61,22 +59,20 @@ namespace WFAGoolgeSheet
         bool updateinprogress = false;
         bool DataChanged = false;
         bool isProcessRunning = false;
-        //int dataLoadForSheet = -1;
-        //bool waiting = false;
-        //bool isCancelled = false;
+
         string Tabfocus = null;
         bool gEODhit = false;
         int rowOffset = 0;
         int firstrow = 0;
         int skiprow = 0;
         int lastFSrow = 0;
-        //int lastINrow = 0;
+
         int lastSProw = 0;
         int lastCErow = 0;
         int lastC5row = 0;
         int progress = 0;
         int rcount = -1;
-        //int oldIndex = 0;
+
         int chgCount = 0;
         int foundCnt = 0;
         int firstFound = 0;
@@ -93,6 +89,7 @@ namespace WFAGoolgeSheet
         int numOfSP = 0;
         int numOfpE = 0;
         int numOfSkip = 0;
+        int adder = 0;
         public bool setMinDate = false;
         public bool _setPM = false;
         public bool _setAM = false;
@@ -110,10 +107,16 @@ namespace WFAGoolgeSheet
         public int SecondFromTop;
         public int SecondFormLeft;
         public System.Drawing.Size SecondFormSize = System.Drawing.Size.Empty;
+        public int ForthFromTop;
+        public int ForthFormLeft;
+        public System.Drawing.Size ForthFormSize = System.Drawing.Size.Empty;
         public int MapFormTop;
         public int MapFormLeft;
         public System.Drawing.Size MapFormSize;
         string[] vs = null;
+        static string ttemp = "";
+        static string trans = "";
+
         //
         // list for sheets row moves
         //
@@ -135,17 +138,48 @@ namespace WFAGoolgeSheet
         public string ApplicationName = null;
         public String spreadsheetId = null;             // Spreadsheet ID
 
-        //
-        // Map form create
-        //
-        //public void SomeMethodThatOpensTheSubForm()
-        //{
-        //    Form4 subForm = new Form4();
+        public void BuildComboBoxItems(Int32 defIndex)
+        {
+            comboBox1.Items.Clear();
+            if (radioButton6.Checked)
+            {
+                comboBox1.Items.Add(new sTabName { langName = "Imported Names", tabname = "Imported Names", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Field Service", tabname = "Field Service", range = "!A1:K", keyfield = "Field Service" });
+                comboBox1.Items.Add(new sTabName { langName = "Confirmed Deaf", tabname = "Confirmed Deaf", range = "!A1:K", keyfield = "Telephone" });
+                comboBox1.Items.Add(new sTabName { langName = "Contacted 5 times letters", tabname = "Contacted 5 times letters", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "NoGPSMap", tabname = "NoGPSMap", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Out of Territory", tabname = "Out Terr", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "GeoFence Data", tabname = "GeoFence Data", range = "!A1:D", keyfield = "territory" });
+                comboBox1.Items.Add(new sTabName { langName = "Names of Deaf Lost", tabname = "Names of Deaf Lost", range = "!A1:D", keyfield = "TELEPHONE" });
+            }
+            else
+            {
+                comboBox1.Items.Add(new sTabName { langName = "Nombres importados", tabname = "Imported Names", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Servicio de campo", tabname = "Field Service", range = "!A1:K", keyfield = "Field Service" });
+                comboBox1.Items.Add(new sTabName { langName = "Sordos confirmados", tabname = "Confirmed Deaf", range = "!A1:K", keyfield = "Telephone" });
+                comboBox1.Items.Add(new sTabName { langName = "Contactado 5 veces cartas", tabname = "Contacted 5 times letters", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Sin mapa GPS", tabname = "NoGPSMap", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Fuera territorio", tabname = "Out Terr", range = "!A1:K", keyfield = "TELEPHONE" });
+                comboBox1.Items.Add(new sTabName { langName = "Datos de GeoFence", tabname = "GeoFence Data", range = "!A1:D", keyfield = "territory" });
+                comboBox1.Items.Add(new sTabName { langName = "Nombres de sordos perdidos", tabname = "Names of Deaf Lost", range = "!A1:D", keyfield = "TELEPHONE" });
+                //comboBox1.Items.Add(new sTabName { tabname = "Common First Names", range = "!A1:G", keyfield = "TELEPHONE" });
+            }
+            comboBox1.SelectedIndex = defIndex;
+        }
 
-        //    _formMediator = new FormMediator(this, subForm);
+        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.Window)
+            {
+                this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            }
+        }
 
-        //    subForm.Show(this);
-        //}
+        void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+        }
+
         //---------------------------------------------------------------------------
         //
         // close application and exit
@@ -154,8 +188,14 @@ namespace WFAGoolgeSheet
         {
             if (DataChanged)
             {
-                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                DialogResult result1 = DialogResult.No;
+                if(radioButton6.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
+                    MessageBoxButtons.YesNo);
+                if(radioButton5.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                    "Preguntas importantes",
                     MessageBoxButtons.YesNo);
                 //
                 // Test the results of the previous 3 dialogs.
@@ -172,7 +212,11 @@ namespace WFAGoolgeSheet
         //
         private void button2_Click(object sender, EventArgs e)
         {
-            //isCancelled = false;
+            GPSgeofence gPSgeofence = new GPSgeofence();
+            GPSgeofence fence = gPSgeofence;
+            fence.ReadGPSfence();
+            textBox11.Text = string.Format("GeoFence {0} - {1} pts.", fence.fenceName, fence.polyCorners);
+            textBox11.Update();
 
             int NumofRec = 0;
             int r1 = -1;
@@ -181,28 +225,40 @@ namespace WFAGoolgeSheet
             if (string.IsNullOrEmpty(textBox5.Text)) skiprow = 0;
             else skiprow = Convert.ToInt32(textBox5.Text);
             firstrow = skiprow + 1 - firstrow;                       // invert it!
-
+            fence.ReadGPSfence();
             if (checkedListBox1.CheckedItems.Count < 1 && comboBox1.SelectedIndex < 2)
             {
-                System.Windows.Forms.MessageBox.Show(" You have no Filters selected");
+                if(radioButton6.Checked)
+                    System.Windows.Forms.MessageBox.Show(" You have no Filters selected");
+                if(radioButton5.Checked)
+                    System.Windows.Forms.MessageBox.Show(" No tiene filtros seleccionados");
                 return;
             }
             if (comboBox1.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show(" No Sheet Tab selected");
+                 if(radioButton6.Checked)
+                   System.Windows.Forms.MessageBox.Show(" No Sheet Tab selected");
+                if (radioButton5.Checked)
+                    System.Windows.Forms.MessageBox.Show("No se ha seleccionado la ficha de la hoja");
                 return;
             }
 
             if (!radioButton1.Checked && !radioButton2.Checked)
             {
-                System.Windows.Forms.MessageBox.Show(" No Sheet [test/live] selected");
+                if(radioButton6.Checked)
+                    System.Windows.Forms.MessageBox.Show(" No Sheet [test/live] selected");
+                if (radioButton5.Checked)
+                    System.Windows.Forms.MessageBox.Show(" No se ha seleccionado la prueba de la hoja / en vivo");
                 return;
             }
             if (comboBox1.SelectedIndex == 1)
             {
                 if (firstrow == 0 || skiprow == 0 || firstrow > skiprow)
                 {
-                    System.Windows.Forms.MessageBox.Show(" group range is bad ");
+                    if (radioButton6.Checked)
+                        System.Windows.Forms.MessageBox.Show(" group range is bad ");
+                    if(radioButton5.Checked)
+                        System.Windows.Forms.MessageBox.Show(" el rango del grupo es malo ");
                     return;
                 }
 
@@ -215,14 +271,23 @@ namespace WFAGoolgeSheet
                     }
                 if (!found)
                 {
-                    System.Windows.Forms.MessageBox.Show(" no filters selected ");
+                    if (radioButton6.Checked)
+                        System.Windows.Forms.MessageBox.Show(" no filters selected ");
+                    if (radioButton5.Checked)
+                        System.Windows.Forms.MessageBox.Show(" no hay filtros seleccionados");
                     return;
                 }
             }
             if (DataChanged)
             {
-                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to Re-Run and loose these changes?",
+                DialogResult result1 = DialogResult.No;
+                if (radioButton6.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
+                    MessageBoxButtons.YesNo);
+                if (radioButton5.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                    "Preguntas importantes",
                     MessageBoxButtons.YesNo);
                 //
                 // Test the results of the previous dialog.
@@ -248,8 +313,6 @@ namespace WFAGoolgeSheet
             ApplicationName = "Google Sheets API .NET Quickstart";
 
             //UserCredential credential;
-
-            //Form1 child = new Form1();
             DataBindings.Clear();
 
             dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect;
@@ -308,8 +371,6 @@ namespace WFAGoolgeSheet
             sTabName selectCar = (sTabName)comboBox1.SelectedItem;
             String range = selectCar.tabname + selectCar.range;
 
-            Form1.ActiveForm.Text = String.Format("Working with sheet '{0}', columns {1} ", spreadsheetId, range);
-
             SpreadsheetsResource.ValuesResource.GetRequest request =
                     service.Spreadsheets.Values.Get(spreadsheetId, range);
             ValueRange response = request.Execute();
@@ -340,7 +401,7 @@ namespace WFAGoolgeSheet
                 request2.Ranges = string.Format("{0}!A{1}:A{2}", selectCar.tabname, rowOffset + 1, values.Count);
                 request2.IncludeGridData = true;
                 Google.Apis.Sheets.v4.Data.Spreadsheet response2 = request2.Execute();
-
+                // calculate RGB color values
                 for (int b = 0; b < values.Count - rowOffset; b++)
                 {
                     var bval = (float)0.0;
@@ -394,7 +455,10 @@ namespace WFAGoolgeSheet
                     if (progress < 100) progressBar1.Value = progress;
                     if (remainder % 139 == 1)
                     {
-                        textBox1.Text = "adding .. " + NumofRec.ToString();
+                        if(radioButton6.Checked)
+                            textBox1.Text = "adding .. " + NumofRec.ToString();
+                        if (radioButton5.Checked)
+                            textBox1.Text = "añadir .. " + NumofRec.ToString();
                         textBox1.Update();
                         progressBar1.Update();
                     }
@@ -410,15 +474,34 @@ namespace WFAGoolgeSheet
                         {
                             ccolor = Program.HexStringToColor(bcolor[x]);
                             Console.WriteLine(ccolor.ToString());
-                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#fffbbc04")) dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Contacted 5 times letters\"";
-                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ffea9999")) dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Only Spanish\"";
-                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ffea4335")) dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"This Sheet\"";
-                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ff8e7cc3")) dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Confirmed English\"";
+                            // Light Orange (~12) = Exists in "Contacted 5 times letters"
+                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#fffbbc04")) 
+                                dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Contacted 5 times letters\"";
+                            
+                            // Pink   = Exists in "Only Spanish"
+                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ffea9999")) 
+                                dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Out Terr\"";
+                            
+                            // Red (~1)   = Exists in "This Sheet"
+                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ffea4335"))
+                                dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"This Sheet\"";
+                            
+                            // Purple = Exists in "Confirmed Deaf"
+                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ff8e7cc3")) 
+                                dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Confirmed Deaf\"";
+                            
+                            // Dark Orange (Gold) (~15) = Exists in "Field Service"
+                            if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ffff6d01")) 
+                                dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Field Service\"";
+                            
+                            // Dark Grey (30)  = Exists in "Imported Names"
                             if (ccolor == System.Drawing.ColorTranslator.FromHtml("#ff7f6000"))
                             {
                                 dataGridView1.Rows[x].Cells[0].ToolTipText = "Exists in \"Imported Names\"";
-                                ccolor = System.Drawing.Color.SandyBrown; ;
+                                ccolor = System.Drawing.Color.SandyBrown; ;             // this RGB color was too dark
                             }
+
+                            // handle green bar option in Google Sheets and change to white
                             if (ccolor == System.Drawing.ColorTranslator.FromHtml("#fff3f3f3"))
                             {
                                 ccolor = System.Drawing.ColorTranslator.FromHtml("#ffffffff");
@@ -429,6 +512,7 @@ namespace WFAGoolgeSheet
                     }
 
                     if (r1 == -1) r1 = firstrow;
+
                     if (comboBox1.SelectedIndex == 1 || comboBox1.SelectedIndex == 0)
                     {
                         dataGridView1.Rows[x].Visible = false;
@@ -460,7 +544,7 @@ namespace WFAGoolgeSheet
             for (int y = 0; y < dataGridView1.Rows.Count; y++)
                 if (dataGridView1.Rows[y].Visible == true)
                 {
-                    dataGridView1.Rows[y].Cells[0].Selected = true;
+                    dataGridView1.Rows[y].Cells[1].Selected = true;
                     break;
                 }
 
@@ -501,9 +585,6 @@ namespace WFAGoolgeSheet
                 button9.Visible = false;
                 checkBox2.Visible = false;
                 checkBox3.Visible = false;
-                textBox9.Visible = true;
-                textBox10.Visible = true;
-                label10.Visible = true;
                 textBox9.Text = dataGridView1.RowCount.ToString();
                 textBox9.Update();
                 textBox10.Text = dataGridView1.RowCount.ToString();
@@ -580,9 +661,16 @@ namespace WFAGoolgeSheet
 
             if (DataChanged)
             {
-                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to Clear and loose these changes?",
+                DialogResult result1 = DialogResult.No;
+                if (radioButton6.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
                     MessageBoxButtons.YesNo);
+                if (radioButton5.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                    "Preguntas importantes",
+                    MessageBoxButtons.YesNo);
+
                 //
                 // Test the results of the previous 3 dialogs.
                 //
@@ -596,7 +684,7 @@ namespace WFAGoolgeSheet
             textBox1.Update();
             cellch.Clear();
             button4.BackColor = System.Drawing.Color.LightGray;
-            //checkedListBox1.Visible = false;
+            checkedListBox1.Visible = true;
             checkedListBox1.ResetText();
             textBox2.Text = " none selected";
             textBox2.Update();
@@ -622,8 +710,14 @@ namespace WFAGoolgeSheet
         {
             if (DataChanged)
             {
-                DialogResult result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                DialogResult result1 = DialogResult.No;
+                if (radioButton6.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
+                    MessageBoxButtons.YesNo);
+                if (radioButton5.Checked)
+                    result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                    "Preguntas importantes",
                     MessageBoxButtons.YesNo);
                 //
                 // Test the results of the previous 3 dialogs.
@@ -671,8 +765,8 @@ namespace WFAGoolgeSheet
                     sTabName selectCar = (sTabName)comboBox1.SelectedItem;
                     String range = selectCar.tabname + selectCar.range;
 
-                    string cellResult = null;
-                    string cellNote = null;
+                    //string cellResult = null;
+                    //string cellNote = null;
 
                     int nRow = dataGridView1.CurrentCell.RowIndex;
                     seeVisibleRow(dataGridView1, nRow);
@@ -690,7 +784,7 @@ namespace WFAGoolgeSheet
                         }
                         else
                         {
-                            if (intIndex + 1 >= dataGridView1.RowCount)
+                            if (intIndex + 1 > dataGridView1.RowCount)
                             {
                                 textBox2.ForeColor = System.Drawing.Color.Red;
                                 textBox2.Text = "last row reached";
@@ -721,7 +815,6 @@ namespace WFAGoolgeSheet
                                 form2.textBox4.Text = dataGridView1.CurrentRow.Cells[5].Value?.ToString();
                                 string temp1 = textBox3.Text + " of " + textBox5.Text;
                                 form2.textBox8.Text = temp1;
-                                //form2.textBox9.Text = textBox2.Text;
                                 form2.textBox9.Text = dataGridView1.CurrentRow.Index.ToString();
 
                                 form2.textBox7.Text = dataGridView1.CurrentRow.Cells[3].Value?.ToString();
@@ -736,6 +829,14 @@ namespace WFAGoolgeSheet
                                     myToolTip.SetToolTip(form2.textBox1, dataGridView1.CurrentRow.Cells[0].ToolTipText);
                                 }
                                 form2.textBox1.Update();
+                                if((dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value?.ToString() == "g")||
+                                    (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value?.ToString() == "H"))
+                                {
+                                    form2.textBox10.Text = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Latitude")].Value?.ToString();
+                                    form2.textBox11.Text = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Longitude")].Value?.ToString();
+                                    form2.textBox10.Update();
+                                    form2.textBox11.Update();
+                                }
 
                                 if (string.IsNullOrEmpty(form2.textBox7.Text)) tmp0 = " ";
                                 else tmp0 = " - city " + form2.textBox7.Text;
@@ -762,12 +863,14 @@ namespace WFAGoolgeSheet
                                     string temp2 = form2.textBox6.Text;
                                     string text = temp2.Replace(Environment.NewLine, "^"); // a random token
                                     string[] lines = text.Split('^');
+                                    Translator translation = new Translator();
                                     for (int j = 0; j < lines.Count(); j++)
                                     {
-                                        string temp = form2.textBox6.Lines[j];
-                                        firstpos = temp.Contains(today.ToString("yyyy-MM-dd"));
+                                        ttemp = form2.textBox6.Lines[j];
+                                        firstpos = ttemp.Contains(today.ToString("yyyy-MM-dd"));
                                         if (firstpos) break;
                                     }
+                                    trans = translation.TranslationAsync(form2.textBox6.Text).ToString();    //new - translation added
 
                                     if (!firstpos) form2.textBox6.Text = form2.textBox6.Text + Environment.NewLine + DateTime.Now.ToString("yyyy-MM-dd ddd hh:mm tt") + ": ";
                                     else form2.textBox6.Text = form2.textBox6.Text + Environment.NewLine;
@@ -824,6 +927,7 @@ namespace WFAGoolgeSheet
                                 form2.checkBox4.Checked = localAutoMap;
                                 dataGridView1.EditMode = DataGridViewEditMode.EditProgrammatically;
                                 adjGPS = false;
+
                                 //  
                                 // Bring up Form2
                                 //  
@@ -872,9 +976,6 @@ namespace WFAGoolgeSheet
                                 //
                                 if (dr == DialogResult.No)
                                 {
-
-                                    //saveFSdata(nRow);
-
                                     try
                                     {
                                         dataGridView1.Rows[nRow].Selected = false;
@@ -901,9 +1002,6 @@ namespace WFAGoolgeSheet
                                 //
                                 if (dr == DialogResult.Retry)
                                 {
-
-                                    //saveFSdata(nRow);
-
                                     try
                                     {
                                         dataGridView1.Rows[nRow].Selected = false;
@@ -965,7 +1063,7 @@ namespace WFAGoolgeSheet
 
             //
             // process RadioButtons on Form2
-
+            //
                 switch (checkedRadio)
                 {
                     case "No Ans.":
@@ -1043,6 +1141,7 @@ namespace WFAGoolgeSheet
                 adjGPS = false;
             }
         }
+
         //
         // detect click in header row
         //
@@ -1081,7 +1180,10 @@ namespace WFAGoolgeSheet
         private void DataGridView1_UserDeletingRow(object sender,
     DataGridViewRowCancelEventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("Cannot delete a record!");
+            if(radioButton6.Checked)
+                System.Windows.Forms.MessageBox.Show("Cannot delete a record!");
+            if(radioButton5.Checked)
+                System.Windows.Forms.MessageBox.Show("No se puede eliminar un registro.");
             e.Cancel = true;
         }
 
@@ -1093,7 +1195,6 @@ namespace WFAGoolgeSheet
         {
             if (!updateinprogress && checkBox1.Checked)
             {
-                //Console.WriteLine("UpdateSheet called");
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                 SaveSheetChanges(null);
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
@@ -1145,8 +1246,12 @@ namespace WFAGoolgeSheet
                     new FileDataStore(credPath, true)).Result;
                 Console.WriteLine("Credential file saved to: " + credPath);
             }
-            progressBar1.Value = 2;
-            progressBar1.Update();
+            if (!checkBox1.Checked)   // dont show on auto save
+            {
+                progressBar1.Value = 2;
+                progressBar1.Update();
+            }
+
             // Create Google Sheets API service.
             var service = new SheetsService(new BaseClientService.Initializer()
             {
@@ -1157,8 +1262,12 @@ namespace WFAGoolgeSheet
             //
             // initialize process variables
             //
-            progressBar1.Value = 4;
-            progressBar1.Update();
+            if(!checkBox1.Checked)   // dont show on auto save
+                {
+                    progressBar1.Value = 4;
+                    progressBar1.Update();
+                }
+
             button4.BackColor = System.Drawing.Color.Coral;
             string sCol = null;
             string sRow = null;
@@ -1167,7 +1276,6 @@ namespace WFAGoolgeSheet
             string fRow = null;
             string fCol = null;
             //string sSaveRow4Del = null;
-
             bool iterating = false;
             var sValue = new List<object>();
 
@@ -1178,10 +1286,10 @@ namespace WFAGoolgeSheet
             int oldr = -1;
             int newc = -1;
             int oldc = -1;
-            int index2 = 0;
+            //int index2 = 0;
             //var dPoint = "";
-            int dpCount = -1;
-            string DataRow = "";
+            //int dpCount = -1;
+            //string DataRow = "";
 
             string temp0 = "";
             string temp1 = "";
@@ -1193,12 +1301,11 @@ namespace WFAGoolgeSheet
             bool conseq = false;
 
             //Copy items from list1 to list2
-            //List<List<String>> cellch = new List<List<String>>();
+            //
             List<List<String>> cellch2 = new List<List<String>>();
 
             cellch2.Clear();
-            // loop over tuples with the item and its index
-            //foreach (var (dPoint, index) in cellch.Select((value, i) => (value, i))) 
+ 
             foreach(var dPoint in cellch)
             {
                 if (dPoint == null) continue;      // skip blanks
@@ -1223,15 +1330,12 @@ namespace WFAGoolgeSheet
                     if (conseq)
                     {
                         modstr = true;
-                        //conseq = false;
                     }
                     else
                     {
                         oldc = newc - 1;
                         modstr = false;
                     }
-
-
                 }
                 else conseq = true;
 
@@ -1244,7 +1348,6 @@ namespace WFAGoolgeSheet
                 else
                 {
                     temp3 = temp4;
-                    //conseq = false;
                     if (conseq)
                     {
                         modstr = false;
@@ -1274,8 +1377,6 @@ namespace WFAGoolgeSheet
                     modstr = true;
                     goto Lb1;
                     conseq = true;
-
-
                 }
                 continue;
             }
@@ -1292,7 +1393,8 @@ namespace WFAGoolgeSheet
             conseq = false;
             oldc = -1;
             oldr = -1;
-            cellch.Clear();     
+            cellch.Clear(); 
+            
             //
             // check total changes and processing time
             //   wait appropriately
@@ -1387,7 +1489,6 @@ namespace WFAGoolgeSheet
                             continue;
                         }
                         else dataready = false;
-                        //continue;
                     }
                     if (dataready)
                     {
@@ -1443,7 +1544,7 @@ namespace WFAGoolgeSheet
                     dataready = false;                          // prepare for next row
                                                                 //break;
                 }
-                //}
+
                 if (!String.IsNullOrEmpty(oRow))                // increment to next row
                 {
                     int number = Convert.ToInt32(oRow);
@@ -1452,11 +1553,11 @@ namespace WFAGoolgeSheet
                 }
                 string stmp = "";
                 if (Tabname == "Field Service") stmp = "FS";
-                if (Tabname == "Only Spanish") stmp = "OT";
+                //if (Tabname == "Out Terr") stmp = "OT";
                 if (Tabname == "Imported Names") stmp = "IM";
-                //if (Tabname == "Other") stmp = "O";
-                //if (Tabname == "Contacted 5 times letters") stmp = "5X";
-                //if (Tabname == "Confirmed English") stmp = "EN";
+                if (Tabname == "Out Terr") stmp = "O";
+                if (Tabname == "Contacted 5 times letters") stmp = "5X";
+                if (Tabname == "Confirmed Deaf") stmp = "CD";
                 textBox2.Text = string.Format(" "+ stmp + " row {0}", sRow);
                 textBox2.Update();
 
@@ -1543,7 +1644,6 @@ namespace WFAGoolgeSheet
                             _deleteRequest.DeleteDimension.Range.StartIndex = rowIndex + rowOffset;
                             _deleteRequest.DeleteDimension.Range.EndIndex = rowIndex + rowOffset + 1;
 
-
                             deleteRequestsList.Add(_deleteRequest);
                             _batchUpdateSpreadsheetRequest.Requests = deleteRequestsList;
                             service.Spreadsheets.BatchUpdate(_batchUpdateSpreadsheetRequest, spreadsheetId).Execute();
@@ -1569,7 +1669,6 @@ namespace WFAGoolgeSheet
                         sValue.Clear();
                         continue;
                     }
-
                 }
 
                 dataGridView1.Update();
@@ -1579,6 +1678,8 @@ namespace WFAGoolgeSheet
                 //
                 // update progress bar
                 //
+                if(!checkBox1.Checked)
+                {
                 int remainder;
                 l++;
                 Math.DivRem(l, cellch2.Count, out remainder);
@@ -1588,17 +1689,32 @@ namespace WFAGoolgeSheet
                     progress = remainder * ((100 - 1) / cellch2.Count);
                 if (progress < 100) progressBar1.Value = progress;
                 progressBar1.Update();
+                }
             }
+
             //
             // Clean up and finish
             //
             updateinprogress = false;
             DataChanged = false;
             cellch2.Clear();
-            textBox1.Text = " done ";
+            if(radioButton6.Checked)
+                textBox1.Text = " working ";
+            if(radioButton5.Checked)
+                textBox1.Text = " trabajar ";
             textBox1.Update();
-            progressBar1.Value = 100;
-            button4.BackColor = System.Drawing.Color.LightGray;
+            if (!(checkBox1.Checked && comboBox1.SelectedIndex == 0))
+            {
+                if(radioButton6.Checked)
+                    textBox1.Text = " done ";
+                if(radioButton5.Checked)
+                    textBox1.Text = " hecho ";
+                textBox1.Update();
+                if(!checkBox1.Checked)
+                    progressBar1.Value = 100;
+                button4.BackColor = System.Drawing.Color.LightGray;
+            }
+
             if (comboBox1.SelectedIndex == 0)
             {
                 checkBox2.Checked = true;
@@ -1606,6 +1722,7 @@ namespace WFAGoolgeSheet
             }
             return;
         }
+
         //
         //
         //
@@ -1618,6 +1735,9 @@ namespace WFAGoolgeSheet
             cellch.Clear();
         }
 
+        //
+        // progress bar
+        //
         public void startPB(System.Drawing.Color color)
         {
 
@@ -1632,14 +1752,14 @@ namespace WFAGoolgeSheet
             progressBar1.ForeColor = color;
         }
 
-
-
+        //
+        //
+        //
         private void DataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (updateinprogress) return;
             checkBox2.Checked = false;
             checkBox2.Checked = false;
-
             int? rowIdx = e?.RowIndex;
             int? colIdx = e?.ColumnIndex;
             if (rowIdx.HasValue && colIdx.HasValue)
@@ -1733,7 +1853,7 @@ namespace WFAGoolgeSheet
 
         private void button6_Click(object sender, EventArgs e)
         {
-            //waiting = false;
+
         }
 
         //
@@ -1792,16 +1912,18 @@ namespace WFAGoolgeSheet
                 checkBox2.Checked = true;
                 checkBox3.Checked = true;
                 checkBox4.Visible = false;
-                textBox9.Visible = true;
-                textBox10.Visible = true;
-                label10.Visible = true;
+                textBox9.Visible = false;
+                textBox10.Visible = false;
+                label10.Visible = false;
                 checkedListBox1.CheckOnClick = true;
                 checkedListBox1.SetItemChecked(6, true);                  //"blank";
                 checkBox1.Checked = true;
+                checkedListBox1.Items.Add("Ignore Dups", false);
             }
 
             if (comboBox1.SelectedIndex == 1)           // Field Service
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 button10.Visible = true;
                 checkBox2.Checked = true;                                   // move but dont delete
                 checkBox3.Checked = false;
@@ -1816,6 +1938,7 @@ namespace WFAGoolgeSheet
             }
             if (comboBox1.SelectedIndex == 2)
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 button9.Visible = false;
                 label1.Visible = false;
                 checkBox4.Visible = false;
@@ -1824,10 +1947,15 @@ namespace WFAGoolgeSheet
                 textBox5.Visible = false;
                 label5.Visible = false;
                 label4.Visible = false;
+                checkBox2.Visible = false;                  // move
+                checkBox3.Visible = false;                  // delete
+                checkBox4.Visible = false;
+                button11.Visible = false;                   // suggest next
             }
 
             if (comboBox1.SelectedIndex == 3)
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 button9.Visible = false;
                 label1.Visible = false;
                 checkBox4.Visible = false;
@@ -1836,10 +1964,15 @@ namespace WFAGoolgeSheet
                 textBox5.Visible = false;
                 label5.Visible = false;
                 label4.Visible = false;
+                checkBox2.Visible = false;                  // move
+                checkBox3.Visible = false;                  // delete
+                checkBox4.Visible = false;
+                button11.Visible = false;                   // suggest next
             }
 
             if (comboBox1.SelectedIndex == 4)
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 button9.Visible = false;
                 label1.Visible = false;
                 checkBox4.Visible = false;
@@ -1848,24 +1981,36 @@ namespace WFAGoolgeSheet
                 textBox5.Visible = false;
                 label5.Visible = false;
                 label4.Visible = false;
+                checkBox2.Visible = false;                  // move
+                checkBox3.Visible = false;                  // delete
+                checkBox4.Visible = false;
+                button11.Visible = false;                   // suggest next
             }
 
-            if (comboBox1.SelectedIndex == 5)
+            if ((comboBox1.SelectedIndex == 5) ||
+                (comboBox1.SelectedIndex==6)||
+                (comboBox1.SelectedIndex==7))
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 button9.Visible = false;
                 label1.Visible = false;
-                checkBox4.Visible = false;
+                //checkBox4.Visible = false;
                 checkedListBox1.Visible = false;
                 textBox3.Visible = false;
                 textBox5.Visible = false;
                 label5.Visible = false;
                 label4.Visible = false;
+                checkBox2.Visible = false;                  // move
+                checkBox3.Visible = false;                  // delete
+                checkBox4.Visible = false;
+                button11.Visible = false;                   // suggest next
             }
             button2.BackColor = System.Drawing.Color.LightGreen;
         }
 
         //
         // update current row textBox
+        //
         int curRow = -1;
         int curRowUpdate = -1;
         private Control txtConsole;
@@ -1884,33 +2029,6 @@ namespace WFAGoolgeSheet
         //
         // search processing
         //
-        private void Program_SearchDataGrid(object sender, EventArgs e)
-        {
-            int rowIndex = -1;
-            var rSelected = new List<DataGridViewRow>();
-            string searchString = textBox4.Text;
-
-            if (searchString == "") return;
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                if (row.Cells[0].Value.ToString().Equals(searchString))
-                {
-                    if (row.Cells[0].Visible == false) continue;
-                    rowIndex = row.Index;
-                    break;
-                }
-            }
-            if (rowIndex >= 0)
-            {
-                dataGridView1.CurrentCell = dataGridView1[visibleColumnIndex, rowIndex];
-                seeVisibleRow(dataGridView1, rowIndex);
-            }
-            else return;
-            //
-            //
-            //
-        }
-
         //
         // hit the search button on searchbox enter key
         //
@@ -1937,8 +2055,6 @@ namespace WFAGoolgeSheet
                 if (dataGridView1.Rows[i].Selected)
                 {
                     curFound = i;
-                    //dataGridView1.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
-                    //Clipboard.SetDataObject(dataGridView1.GetClipboardContent());
                     dataGridView1.CurrentCell = dataGridView1[0, i];
                     seeVisibleRow(dataGridView1, i);
                     break;
@@ -1988,11 +2104,15 @@ namespace WFAGoolgeSheet
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            if (Properties.Settings.Default.Language == "en-US")
+                radioButton6.Checked = true;
+            else
+                radioButton5.Checked = true;
         }
 
         //
         // search datagrid for value
+        //
         private void button6_Click_1(object sender, EventArgs e)
         {
             var rSelected = new List<DataGridViewRow>();
@@ -2001,9 +2121,12 @@ namespace WFAGoolgeSheet
             curFound = 0;
             foundCnt = 0;
 
-            dataGridView1.ClearSelection();
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = true;
+
+            dataGridView1.ClearSelection();
+            dataGridView1.Update();
+            dataGridView1.CurrentRow.Selected = false;
 
             try
             {
@@ -2021,24 +2144,32 @@ namespace WFAGoolgeSheet
                             break;
                         }
                     }
-
                     continue;
                 }
-                System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                if(radioButton6.Checked)
+                    System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                if(radioButton5.Checked)
+                    System.Windows.Forms.MessageBox.Show(string.Format(" Búsqueda encontrada {0} artículos", Convert.ToString(foundCnt)));
 
                 foreach (DataGridViewRow r in dataGridView1.SelectedRows)
                     rSelected.Add(r);
                 dataGridView1.CurrentCell = dataGridView1[visibleColumnIndex, firstFound];
+                dataGridView1.CurrentRow.Selected = true;
                 seeVisibleRow(dataGridView1, firstFound);
                 foreach (DataGridViewRow rs in rSelected)
+                {
                     dataGridView1.Rows[rs.Index].Selected = true;
-
+                }
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                if(radioButton6.Checked)
+                    System.Windows.Forms.MessageBox.Show(string.Format(" Search found {0} items", Convert.ToString(foundCnt)));
+                if(radioButton5.Checked)
+                    System.Windows.Forms.MessageBox.Show(string.Format(" Búsqueda encontrada {0} artículos", Convert.ToString(foundCnt)));
             }
         }
+
         //
         // Clear search box and Selected Rows
         //
@@ -2057,59 +2188,133 @@ namespace WFAGoolgeSheet
         {
             DateTime today = DateTime.Today;
             int c;
-            //if (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value != result)
-            //{
+
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Selected = true;
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = result;
                 c = cellch.Count;
                 cellch.Add(new List<String>());
                 cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                 cellch[c].Add(result);
-            //}
-            //if (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Value != today.ToString("yyyy-MM-dd"))
-            //{
+
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Value = today.ToString("yyyy-MM-dd");
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Selected = true;
                 c = cellch.Count;
                 cellch.Add(new List<String>());
                 cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                 cellch[c].Add(today.ToString("yyyy-MM-dd"));
-            //}
 
-            //if (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "#Attempts")].Value != "0");
-            //{
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "#Attempts")].Value = "0";
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "#Attempts")].Selected = true;
                 c = cellch.Count;
                 cellch.Add(new List<String>());
                 cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                 cellch[c].Add("0");
-            //}
 
-            //if (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "NOTES")].Value != " ") ;
-            //{
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "NOTES")].Value = " ";
                 dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "NOTES")].Selected = true;
                 c = cellch.Count;
                 cellch.Add(new List<String>());
                 cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                 cellch[c].Add(" ");
-            //}
-
         }
+
+        //
+        // remove duplicate words in string
+        //
+        public string RemoveAnyDuplicates(string SentanceString)
+        {
+            string withoutDuplicates = String.Join("+", SentanceString.Split('+').Distinct());
+            return (withoutDuplicates);
+        }
+
+        //
+        // remove duplicate words in string
+        //
+        public string RemoveConsecutive(string SentenceString)
+        {
+            //string SetenceString = "red white black white green yellow red red black white";
+            var v = new HashSet<string>();
+            string[] data = SentenceString.Split('+');
+            string retStr = "";
+            HashSet<string> set = new HashSet<string>();
+            for (int i = 0; i < data.Length; i++)
+                set.Add(data[i]);
+
+            string adjset = string.Join("+",set);
+            for (int i =0; i < (SentenceString.Length - adjset.Length); i++)
+                retStr = retStr + SentenceString[i];
+
+            int indexOfSubString = adjset.IndexOf(retStr);
+            //remove specified substring from string
+            if(indexOfSubString>0)
+                adjset = adjset.Remove(indexOfSubString, retStr.Length);
+            //}
+            return (adjset);
+        }
+
+        public class Coordinates
+        {
+            public double Longitude { get; set; }
+            public double Latitude { get; set; }
+
+            public Coordinates(double Long, double Lat)
+            {
+                this.Longitude = Long;
+                this.Latitude = Lat;
+            }
+        }
+        private string ExtractCoordinates(string Coord)
+        {
+            List<Coordinates> lstOfCoordinates = new List<Coordinates>();
+
+            Regex reg = new Regex(@"[-+]?[0-9]*\.[0-9]+.");
+
+            //I get the matches and save them in a list
+            MatchCollection collection = reg.Matches(Coord);
+            List<string> lstOfMatches = (from Match match in collection
+                                         select match.Value).ToList();
+
+            string sval = "";
+            int scnt = 0;
+            for (int z = lstOfMatches.Count; z > 0; z--)
+            {
+                if (string.IsNullOrEmpty(sval))
+                    sval = sval + lstOfMatches[z-1];
+                else
+                    sval = sval + "," + lstOfMatches[z-1];
+                if (scnt++ > 1) break;
+            }
+
+            if (lstOfMatches.Count < 2) return (null);
+            else return (sval);
+        }
+
+
         //
         //
         // RunImported Names
         //
         List<List<String>> names2chk = new List<List<String>>();
+        public class MyListBoxItem
+        {
+            public string Text { get; set; }
+            public string Value { get; set; }
+        }
+
         private void RunImportedNames(object sender, EventArgs e)
         {
             DateTime today = DateTime.Today;
             int k = 0;
             int nLim = 0;
+            GPSgeofence gPSgeofence = new GPSgeofence();
+            GPSgeofence fence = gPSgeofence;
+            bool haveGPS = false;
+            float lx = 0;
+            float ly = 0;
             button8.BackColor = System.Drawing.Color.Coral;
             checkBox2.Checked = false;
             checkBox3.Checked = false;
+
             using (var UserControl1 = new UserControl1())
             {
                 startPB(System.Drawing.Color.Green);
@@ -2155,14 +2360,10 @@ namespace WFAGoolgeSheet
                 if (radioButton2.Checked) spreadsheetId = Properties.Settings.Default.ProdSheet;
                 progressBar1.Value = 3;
                 progressBar1.Update();
-                //String range = "Common First Names!A1:A";
-                //SpreadsheetsResource.ValuesResource.GetRequest request =
-                //        service.Spreadsheets.Values.Get(spreadsheetId, range);
-                //ValueRange response = request.Execute();
 
                 textBox1.Text = ".. reading data";
                 textBox1.Update();
-                //names2chk.Clear();
+
                 DataChanged = true;
                 int numOfSP = 0;
                 textBox7.Clear();
@@ -2170,23 +2371,14 @@ namespace WFAGoolgeSheet
                 textBox6.Clear();
                 int numOfSkip = 0;
                 textBox8.Clear();
-                IList<IList<Object>> values = null;
+                //IList<IList<Object>> values = null;
 
                 int i;
                 bool found = false;
                 
-                //foreach (var row in values)
-                //{
-                //    i = names2chk.Count;
-                //    names2chk.Add(new List<String>()); //Adds new sub List
-                //    names2chk[i].Add(values[i][0].ToString()); //Add values to the sub List at index 0
-                //    names2chk[i].Add(" ".ToString());
-                //}
                 progressBar1.Value = 4;
                 progressBar1.Update();
-
-                //dataGridView1.Visible = false;
-
+                fence.ReadGPSfence();
                 //
                 // set up destination tabs for Imported Names
                 //
@@ -2208,10 +2400,27 @@ namespace WFAGoolgeSheet
                     nLim--;
                 textBox9.Text = Convert.ToString(nLim);
                 textBox9.Update();
-            LB1: while (nRow < nLim/*+nOff*/)        //dataGridView1.RowCount)
+            LB1: while (nRow < nLim+1 /*+nOff*/)        //dataGridView1.RowCount)
                 {
                     if (dataGridView1.Rows[nRow].Visible == false)
                     {
+                        nRow++;
+                        nOff++;
+                        continue;
+                    }
+
+                    if ((dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "TELEPHONE")].ToolTipText.ToString() != "") && !(checkedListBox1.CheckedItems.Contains("Ignore Dups")))
+                    {
+                        dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "RESULTS")].Selected = true;
+                        dataGridView1.CurrentCell.Value = "F";
+                        SetResultTime("F");
+                        dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "NOTES")].Selected = true;
+                        dataGridView1.CurrentCell.Value = dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "TELEPHONE")].ToolTipText.ToString();
+                        int s = cellch.Count;
+                        cellch.Add(new List<string>());
+                        cellch[s].Add(dataGridView1.CurrentCellAddress.ToString());
+                        cellch[s].Add(dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "TELEPHONE")].ToolTipText.ToString());
+                        if (checkBox1.Checked) SaveSheetChanges(null);
                         nRow++;
                         nOff++;
                         continue;
@@ -2223,7 +2432,7 @@ namespace WFAGoolgeSheet
                     dataGridView1.CurrentRow.Selected = true;
                     break;
                 }
-                if (nRow >= nLim/*+nOff*/)
+                if (nRow >= nLim+1/*+nOff*/)
                 {
                     updateinprogress = false;
                     dataGridView1.Visible = true;
@@ -2232,22 +2441,34 @@ namespace WFAGoolgeSheet
                 int l = 0;
                 int c = cellch.Count;
 
-                //foreach (var row in values)
-                //{
                     string streetadr = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "ADDRESS")].Value?.ToString();
                     string names = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "NAME")].Value?.ToString();
                     string phone = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "TELEPHONE")].Value?.ToString();
+                    
                     if ((string.IsNullOrEmpty(names) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(streetadr)))
                     {
-                    if (nRow < nLim)
+                    if (string.IsNullOrEmpty(streetadr))
                     {
-                        //numOfSkip++;
-                        nRow++;
+                        dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "RESULTS")].Selected = true;
+                        dataGridView1.CurrentCell.Value = "F";
+                        SetResultTime("F");
+                        dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "NOTES")].Selected = true;
+                        dataGridView1.CurrentCell.Value = "no address found";
+                        int s = cellch.Count;
+                        cellch.Add(new List<string>());
+                        cellch[s].Add(dataGridView1.CurrentCellAddress.ToString());
+                        cellch[s].Add(dataGridView1.CurrentCell.Value.ToString());
+                        if (checkBox1.Checked) SaveSheetChanges(null);
                     }
+                        if (nRow < nLim)
+                        {
+                            nRow++;
+                        }
                         goto LB1;
                     }
-
+                    
                     string phone1 = Regex.Replace(phone, "[^0-9]", "");
+                    phone1 = phone1.TrimStart('0');
                     if(phone != phone1)
                     {
                         dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "TELEPHONE")].Selected = true;
@@ -2256,9 +2477,8 @@ namespace WFAGoolgeSheet
                         cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                         cellch[c].Add(phone1);
                     }
-                    
 
-                        if (dataGridView1.CurrentRow.Visible)
+                    if (dataGridView1.CurrentRow.Visible)
                         {
                             dataGridView1.CurrentRow.Selected = true;
                             Thread.Sleep(nRow / 20);
@@ -2270,22 +2490,92 @@ namespace WFAGoolgeSheet
                             if (string.IsNullOrEmpty(cityadr)) cityadr = "Quito";
                             RegexOptions options = RegexOptions.None;               // remove multiple spaces
                             Regex regex = new Regex("[ ]{2,}", options);
-                            streetadr = regex.Replace(streetadr, " ");
-                            if (streetadr.Length > 120)                             // limit url size
-                                streetadr = streetadr.Substring(0, 120);
-                            streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
-                            vs = getGPSfromAddr(streetadr, cityadr);
-                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Value = today.ToString("yyyy-MM-dd");
-                            if (vs == null || vs[0] == "E" || vs[0] == "X")
-                            {
-                                found = false;
 
+                            streetadr = regex.Replace(streetadr, " ");
+                            string list = "";
+
+                    streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
+
+                    list = ExtractCoordinates(streetadr);
+                            if (streetadr.Length > 180)                             // limit url size
+                                streetadr = streetadr.Substring(0, 180);
+ 
+                            if (!string.IsNullOrEmpty(list))
+                                 {
+                                //GPSgeofence fence = new GPSgeofence();
+                                haveGPS = true;
+
+                                string[] loc = list.Split(',');
+                        try
+                        {
+                            if (loc.Length > 1)
+                            {
+                                lx = (float)Convert.ToDouble(loc[0].TrimEnd('+'));
+                                ly = (float)Convert.ToDouble(loc[1].TrimEnd('+'));
+                                if (Math.Abs(ly) < Math.Abs(lx))
+                                    found = fence.PointInPolygon(ly, lx);
+                                else
+                                    found = fence.PointInPolygon(lx, ly);
                             }
                             else
                             {
-                                found = true;
+                                haveGPS = false;
+                                found = false;
+                                vs.Initialize();
                             }
+                            streetadr = list.TrimEnd('+');
                         }
+                        catch (FormatException)
+                        {
+                            found = false;
+                            haveGPS = false;
+                        }
+
+                    }
+                    int t = 3;
+                    while (t-- > 0 && !haveGPS)
+                    {
+                        vs = getGPSfromAddr(streetadr, cityadr);
+
+                        if (t == 2 && (vs == null || vs[0] == "X"))
+                        {
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "-";
+                            dataGridView1.Update();
+                            streetadr = RemoveConsecutive(streetadr);
+                            continue;
+                        }
+                        if (t == 1 && (vs == null || vs[0] == "X"))
+                        {
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "x";
+                            dataGridView1.Update();
+                            streetadr = RemoveAnyDuplicates(streetadr);
+                            continue;
+                        }
+                        break;
+                    }
+                        if ((dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value == "-") ||
+                            (dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value == "x"))
+                        {
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value = "X";
+                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = "X";
+                            dataGridView1.Update();
+                            numOfSkip++;
+                        }
+                        dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "DATE")].Value = today.ToString("yyyy-MM-dd");
+                            if (vs == null || vs[0] == "E" || vs[0] == "X")
+                                found = false;
+                            else
+                                found = true;
+                        //}
+                        if(haveGPS)
+                        {
+                        if (found)
+                            vs = new string[] { "In", "g", Convert.ToString(lx), Convert.ToString(ly) };
+                        else
+                            vs = new string[] { "O", "g", Convert.ToString(lx), Convert.ToString(ly) };
+                        haveGPS = false;
+                        }
+                //}
 
                     string t1 = dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "RESULTS")].Value?.ToString();
 
@@ -2293,9 +2583,12 @@ namespace WFAGoolgeSheet
                     {
                         if (vs[0] == "In" || vs[0] == "G")
                         {
-                            SetResultTime("In");
-                            numOfEN++;
-                            textBox6.Text = string.Format("found {0}", numOfEN);
+                        SetResultTime("In");
+                        numOfEN++; 
+                            if(radioButton6.Checked)
+                                textBox6.Text = string.Format("found {0}", numOfEN);
+                            if(radioButton5.Checked)
+                            textBox6.Text = string.Format("encontrado {0}", numOfEN);
                             textBox6.Update();
 
                             if (vs != null)
@@ -2330,7 +2623,10 @@ namespace WFAGoolgeSheet
                         if (vs[0] == "O" || vs[0] == "E")
                         {
                             numOfSP++;
-                            textBox7.Text = string.Format("found {0}", numOfSP);
+                            if(radioButton6.Checked)
+                                textBox7.Text = string.Format("found {0}", numOfSP);
+                            if(radioButton5.Checked)
+                                textBox7.Text = string.Format("encontrado {0}", numOfSP); 
                             textBox7.Update();
                             dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Selected = true;
                             dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = vs[1];
@@ -2351,16 +2647,18 @@ namespace WFAGoolgeSheet
                             cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
                             cellch[c].Add(vs[3]);
                         }
-                        //}
-                        else
+                    }
+                    else
                         {
-                            numOfSkip++;
+                        SetResultTime("X");
+                        numOfSkip++;
+                            textBox8.Update();
                             dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Selected = true;
-                            dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = vs[0];
+                            //dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value = vs[0];
                             c = cellch.Count;
                             cellch.Add(new List<String>());
                             cellch[c].Add(dataGridView1.CurrentCellAddress.ToString());
-                            cellch[c].Add(vs[0]);
+                            cellch[c].Add(dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Confidence")].Value.ToString());
                             dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Latitude")].Selected = true;
                             dataGridView1.CurrentRow.Cells[GetindexOf(dataGridView1, "Latitude")].Value = "N/A";
                             c = cellch.Count;
@@ -2375,11 +2673,15 @@ namespace WFAGoolgeSheet
                             cellch[c].Add("N/A");
                         }
 
-                    }
-                    else
-                    if (vs == null) numOfSkip++;
+                    //}
+                    //else
+                    //if (vs == null) numOfSkip++;
                     } 
-                    textBox8.Text = string.Format("skipped {0}", numOfSkip);
+                    if(radioButton6.Checked)
+                        textBox8.Text = string.Format("skipped {0}", numOfSkip);
+                    if(radioButton5.Checked)
+                        textBox8.Text = string.Format("omitido {0}", numOfSkip);
+
                     textBox8.Update();
                     textBox1.Text = cellch.Count.ToString() + " changes";
                     textBox1.Update();
@@ -2408,7 +2710,7 @@ namespace WFAGoolgeSheet
                         break;
                     }
 
-            //}
+            }
         LB2: if (comboBox1.SelectedIndex == 0)
             {
                 progressBar1.Value = 100;
@@ -2417,6 +2719,12 @@ namespace WFAGoolgeSheet
                 button9.Visible = true;
                 checkBox2.Visible = true;
                 checkBox3.Visible = true;
+                if (radioButton6.Checked)
+                    textBox1.Text = " done ";
+                if (radioButton5.Checked)
+                    textBox1.Text = " hecho ";
+                textBox1.Update();
+
                 button8.BackColor = System.Drawing.Color.LightGray;
                 button9.BackColor = System.Drawing.Color.LightGreen;
             }
@@ -2435,9 +2743,18 @@ namespace WFAGoolgeSheet
             int pos = -1;
             int pos1 = -1;
             string NewText = "";
+            GPSgeofence gPSgeofence = new GPSgeofence();
+            GPSgeofence fence = gPSgeofence;
+            fence.ReadGPSfence();
             HttpWebRequestHandler hTTPrequest = new HttpWebRequestHandler();
             //http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=Guamani&postalCode=-&addressLine={addressLine}&userLocation=-&userIp={-}&usermapView={usermapView}&includeNeighborhood=includeNeighborhood&maxResults={maxResults}&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS
-            string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=" + city + "&postalCode=-&addressLine=" + address + "&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS";
+            //string webAdr = @"http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&adminDistrict=Quito&locality=" + city + "&postalCode=-&addressLine=" + address + "&key=AhbjdGZqctwmlxK6GXWgkfE5CL7J2c5OWuTCk7WaAy-xVXphOgT2_AWrLL-L90OS";
+
+            string webAdr = Properties.Settings.Default.WebURL;
+            address = address.Replace("+", "%20");
+            webAdr = webAdr.Replace("Guamani", city);
+            webAdr = webAdr.Replace("{addressLine}",  address);
+            webAdr = webAdr + fence.bkey;
             if (!string.IsNullOrEmpty(address))
             {
                 var webReply = hTTPrequest.GetReply(webAdr);
@@ -2465,9 +2782,6 @@ namespace WFAGoolgeSheet
                 float x = float.Parse(strx);
                 float y = float.Parse(stry);
 
-                GPSgeofence gPSgeofence = new GPSgeofence();
-                GPSgeofence fence = gPSgeofence;
-                fence.ReadGPSfence();
                 inTerritory = fence.PointInPolygon(x, y);
                 if(x == notfoundlat && y == notfoundlon)
                 {
@@ -2527,7 +2841,11 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Only Spanish".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if(radioButton6.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if(radioButton5.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicado {0}", forchk.ToString());
+
                 }
 
             }
@@ -2559,7 +2877,10 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Field Service".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if (radioButton6.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if (radioButton5.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicado {0}", forchk.ToString());
                 }
             }
             p = p + 2;
@@ -2593,7 +2914,10 @@ namespace WFAGoolgeSheet
                     names2chk[i].Add("Confirmed English".ToString());
                     if (names2chk.Distinct().Count() != names2chk.Count())
                     {
-                        System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                        if (radioButton6.Checked)
+                            System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                        if (radioButton5.Checked)
+                            System.Windows.Forms.MessageBox.Show("duplicado {0}", forchk.ToString());
                     }
                 }
             }
@@ -2624,7 +2948,10 @@ namespace WFAGoolgeSheet
                 names2chk[i].Add("Contacted 5 times letters".ToString());
                 if (names2chk.Distinct().Count() != names2chk.Count())
                 {
-                    System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if (radioButton6.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicate {0}", forchk.ToString());
+                    if (radioButton5.Checked)
+                        System.Windows.Forms.MessageBox.Show("duplicado {0}", forchk.ToString());
                 }
             }
             p = p + 2;
@@ -2727,7 +3054,7 @@ namespace WFAGoolgeSheet
 
                 //-------------------------------------------------------
                 //
-                // prepare move information to "Only Spansh" or "Confired English
+                // prepare move information to "Out of Terr" or "Confired Deaf
                 // as part of "Imported Names" EOD
                 //
                 //
@@ -2961,6 +3288,7 @@ namespace WFAGoolgeSheet
         {
             if (comboBox1.SelectedIndex == 0)
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 gEODhit = true;
                 checkBox2.Checked = true;                                   // move and delete
                 checkBox3.Checked = true;
@@ -2976,6 +3304,7 @@ namespace WFAGoolgeSheet
             }
             if (comboBox1.SelectedIndex == 1)
             {
+                checkedListBox1.Items.Remove("Ignore Dups");
                 gEODhit = true;
                 checkBox2.Checked = true;                                   // move but dont delete
                 checkBox3.Checked = false;
@@ -3002,6 +3331,27 @@ namespace WFAGoolgeSheet
             Form3 form3 = new Form3();
             pastTime = DateTimePicker.MinimumDateTime;
             string[] days = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            if (radioButton6.Checked)
+            {
+                days[0] = "Sunday";
+                days[1] = "Monday";
+                days[2] = "Tuesday";
+                days[3] = "Wednesday";
+                days[4] = "Thursday";
+                days[5] = "Friday";
+                days[6] = "Saturday";
+            }
+            if (radioButton5.Checked)
+            {
+                days[0] = "Domingo";
+                days[1] = "Lunes";
+                days[2] = "Martes";
+                days[3] = "Miercoles";
+                days[4] = "Jueves";
+                days[5] = "Viernes";
+                days[6] = "Sabado";
+            }
+
             foreach (string dow in days)
                 form3.checkedListBox2.Items.Add(dow);
             string whichM = DateTime.Now.ToString("tt");
@@ -3193,9 +3543,13 @@ namespace WFAGoolgeSheet
             }
             catch { }
             progressBar1.Value = 100;
-
-            DialogResult result = System.Windows.Forms.MessageBox.Show(string.Format(" there are {0} rows recommended. Do you want to accept and work these?", sel_rows),
+            DialogResult result = DialogResult.No;
+            if (radioButton6.Checked)
+                result = System.Windows.Forms.MessageBox.Show(string.Format(" there are {0} rows recommended. Do you want to accept and work these?", sel_rows),
                                                                  "Important Question", MessageBoxButtons.YesNo);
+            if(radioButton5.Checked)
+                result = System.Windows.Forms.MessageBox.Show(string.Format("  hay {0} filas recomendadas. ¿Quiere aceptarlas y trabajarlas?", sel_rows),
+                                                          "Pregunta importante", MessageBoxButtons.YesNo);
 
             if (result == DialogResult.Yes)
             {
@@ -3233,84 +3587,115 @@ namespace WFAGoolgeSheet
         private static void seeVisibleRow(DataGridView view, int rowToShow)
         {
             int i = 0;
+            int j = 0;
             var countVisible = view.DisplayedRowCount(false);
 
-            for (i = rowToShow; i > 0; --i)
+            view.CurrentRow.Selected = false;
+            for (i = rowToShow; i > 0; i--)
                 if (view.Rows[i].Visible) break;
-
-            view.FirstDisplayedScrollingRowIndex =  i;
+            view.Rows[i].Selected = true;
+            view.Rows[i].Cells[1].Selected = true;
+            while (j + 5 < i)
+            {
+                j = view.FirstDisplayedScrollingRowIndex;
+                if (view.Rows[j++].Visible) break;
+            }
+            view.Update();
         }
-        //private void SetLanguageDictionary()
-        //{
-        //    ResourceDictionary dict = new ResourceDictionary();
-        //    switch (Thread.CurrentThread.CurrentCulture.ToString())
-        //    {
-        //        case "en-US":
-        //            dict.Source = new Uri("..\\Resources\\StringResources.en-US.xaml",
-        //                          UriKind.Relative);
-        //            break;
-        //        case "sp-EC":
-        //            dict.Source = new Uri("..\\Resources\\StringResources.fr-CA.xaml",
-        //                               UriKind.Relative);
-        //            break;
-        //        default:
-        //            dict.Source = new Uri("..\\Resources\\StringResources.en-US.xaml",
-        //                              UriKind.Relative);
-        //            break;
-        //    }
-        //    //Resources.MergedDictionaries.Add(dict);
-        //    MergedDictionaries.Add(dict);
-        //}
-        //
-        private void btnCalculate_Click(object sender, EventArgs e)
-        {
-            //int noItem;
-            //decimal priceItem, price;
-            //noItem = Convert.ToInt16(txtNoItems.Text);
-            //priceItem = Convert.ToDecimal(txtPriceItem.Text);
-            //price = priceItem * noItem;
-            //lblDisplay.Text = price.ToString("C", CultureInfo.CurrentUICulture); //the "C" is used to display the local currency based on the language and culture selected
-        }
+        private void lang(string lang)
+       {
+        string culture = lang;
 
-        //
-        private void ChangeLanguage(string lang) //A function called to change the language
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
+        ApplyResourceToControl(
+        this,
+        new ComponentResourceManager(typeof(Form1)),
+        new CultureInfo(culture));           
+    }
+
+    private void ApplyResourceToControl(
+       Control control,
+       ComponentResourceManager cmp,
+       CultureInfo cultureInfo)
+    {
+        foreach (Control child in control.Controls)
+        {
+            //Store current position and size of the control
+            var childSize = child.Size;
+            var childLoc = child.Location;
+            //Apply CultureInfo to child control
+            ApplyResourceToControl(child, cmp, cultureInfo);
+            //Restore position and size
+            child.Location = childLoc;
+            child.Size = childSize;
+        }
+        //Do the same with the parent control
+        var parentSize = control.Size;
+        var parentLoc = control.Location;
+        cmp.ApplyResources(control, control.Name, cultureInfo);
+        control.Location = parentLoc;
+        control.Size = parentSize;
+    }
+        public void ChangeLanguage(string lang) //A function called to change the language
         {
             foreach (Control c in this.Controls)
             {
                 ComponentResourceManager resources = new ComponentResourceManager(typeof(Form1));
-                resources.ApplyResources(c, c.Name, new CultureInfo(lang));
+                //resources.ApplyResources(c, c.Name, new CultureInfo(lang));
+                ApplyResourceToControl(this, new ComponentResourceManager(typeof(Form1)), new CultureInfo(lang));
             }
         }
 
+        int _previousSelectedItem = 1;
+        private void comboBox1_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            ComboBox xx = (ComboBox)sender;
+            xx.SelectedItem = this._previousSelectedItem;
+        }
         private void radioButton6_CheckedChanged(object sender, EventArgs e)
         {
             if(radioButton6.Checked)
-                    {
+                {
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                _previousSelectedItem = comboBox1.SelectedIndex;
+                //ChangeLanguage to American English
+                string language = "en-US";
 
-                    //ChangeLanguage to American English
-                    language = "en-US";
+                // Save user choice in settings
+                Properties.Settings.Default.Language = "en-US";
+                Properties.Settings.Default.Save();
 
-                    // Save user choice in settings
-                    Properties.Settings.Default.Language = "en-US";
-                    Properties.Settings.Default.Save();
-
-                    ChangeLanguage(language);
-                    }
-           }
+                ChangeLanguage(language);
+                comboBox1.SelectedIndex = _previousSelectedItem;
+                string tstring = comboBox1.SelectedText;
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(tstring);
+                BuildComboBoxItems(_previousSelectedItem);
+                this.Update();
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+            }
+        }
 
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
         {
                 if(radioButton5.Checked)
                 {
-                    //ChangeLanguage to Ecuadorian Spanish
-                    language = "es-EC";
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                _previousSelectedItem = comboBox1.SelectedIndex;
+                //ChangeLanguage to Ecuadorian Spanish
+                string language = "es-EC";
 
                     // Save user choice in settings
                     Properties.Settings.Default.Language = "es-EC";
                     Properties.Settings.Default.Save();
 
-                    ChangeLanguage(language);
-                }
+                ChangeLanguage(language);
+                comboBox1.SelectedIndex = _previousSelectedItem;
+                string tstring = comboBox1.SelectedText;
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(tstring);
+                BuildComboBoxItems(_previousSelectedItem);
+                this.Update();
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+            }
             }
     }
 }

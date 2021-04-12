@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace WFAGoolgeSheet
 {
@@ -15,6 +16,11 @@ namespace WFAGoolgeSheet
         public Form2()
         {
             InitializeComponent();
+
+            this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+            this.FormClosing += new FormClosingEventHandler(Form2_FormClosing);
+
             formIsUp = true;
         }
 
@@ -28,20 +34,43 @@ namespace WFAGoolgeSheet
         // OK button processing
         private void button1_Click(object sender, EventArgs e)
         {
-            Form1 f1 = (Form1)Application.OpenForms["Form1"];
+            try
+            {
+                Form1 f1 = (Form1)Application.OpenForms["Form1"];
+                Form2 f2 = (Form2)Application.OpenForms["Form2"];
+                Form4 f4 = (Form4)Application.OpenForms["Form4"];
 
-            f1.attempt = textBox5.Text;
-            f1.notes = textBox6.Text;
-            formIsUp = false;
-            this.Close();
+                f1.attempt = textBox5.Text;
+                f1.notes = textBox6.Text;
+
+                preventExit = false;
+                formIsUp = false;
+                f2.Close(); f4.Close();
+                //this.Close();
+            }
+            catch (NullReferenceException ne)
+            {
+                //One of the forms is not opened
+                Console.WriteLine(ne.Message);
+            }
         }
 
         private void Form2_FormClosing(Object sender, FormClosingEventArgs e)
         {
+            SystemEvents.UserPreferenceChanged -= new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
+
             if (preventExit) e.Cancel = true;
             else e.Cancel = false;
             formIsUp = false;
         }
+        void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.Window)
+            {
+                this.Font = System.Drawing.SystemFonts.IconTitleFont;
+            }
+        }
+
         //
         // Exit button processing
         private void button2_Click(object sender, EventArgs e)
@@ -115,6 +144,34 @@ namespace WFAGoolgeSheet
             Form1 form1 = new Form1();
             form1.button4.BackColor = System.Drawing.Color.LightGray;
             form1.button4.Update();
+            if (form1.radioButton5.Checked)
+            {
+                int i = form1.comboBox1.SelectedIndex;
+                //ChangeLanguage to Ecuadorian Spanish
+                string language = "es-EC";
+
+                // Save user choice in settings
+                Properties.Settings.Default.Language = "es-EC";
+                Properties.Settings.Default.Save();
+
+                form1.ChangeLanguage(language);
+                form1.comboBox1.SelectedIndex = i;
+                form1.comboBox1.Refresh();
+            }
+            if (form1.radioButton6.Checked)
+            {
+                int i = form1.comboBox1.SelectedIndex;
+                //ChangeLanguage to American English
+                string language = "en-US";
+
+                // Save user choice in settings
+                Properties.Settings.Default.Language = "en-US";
+                Properties.Settings.Default.Save();
+
+                form1.ChangeLanguage(language);
+                form1.comboBox1.SelectedIndex = i;
+                form1.comboBox1.Refresh();
+            }
             if (checkBox3.Checked)
                 button5.PerformClick();
         }
@@ -131,7 +188,6 @@ namespace WFAGoolgeSheet
 
             if (!string.IsNullOrEmpty(textBox3.Text))
             {
-
                 string streetadr = textBox3.Text;
                 RegexOptions options = RegexOptions.None;               // remove multiple spaces
                 Regex regex = new Regex("[ ]{2,}", options);
@@ -141,24 +197,34 @@ namespace WFAGoolgeSheet
                 streetadr = RestSharp.Extensions.MonoHttp.HttpUtility.UrlEncode(streetadr); // encode for specail characters
                 string[] vs = form1.getGPSfromAddr(streetadr, "Quito");
                 //form4.Size = form1.SecondFormSize;
-                if(vs[0] == "X")
-                {
-                    //textBox6.AppendText(" GPS location not found");
+                if(vs != null && vs[0] == "X")
                     return;
+                if (!string.IsNullOrEmpty(textBox10.Text) && !string.IsNullOrEmpty(textBox11.Text))
+                {
+                    lat = Convert.ToDouble(textBox10.Text);
+                    lon = Convert.ToDouble(textBox11.Text);
                 }
-                lat = Convert.ToDouble(vs[2]);
-                lon = Convert.ToDouble(vs[3]);
+                else
+                {
+                    if (vs != null)
+                    {
+                        lat = Convert.ToDouble(vs[2]);
+                        lon = Convert.ToDouble(vs[3]);
+                    }
+                    else return;
+                }
+
                 form4.LoadIntoMap(lat, lon);
 
                 form4.Show();
 
             }
+            
             else
                 textBox6.AppendText(" Address Is Blank");
             //textBox6.Text = Program.GTranslate(textBox6.Text);
             return;
         }
-
 
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
@@ -171,7 +237,6 @@ namespace WFAGoolgeSheet
         {
             Form1 form1 = new Form1();
             Form4 f4 = new Form4();
-            //Form4 f4 = (Form4)Application.OpenForms["Form4"];
 
             int pos = -1;
             int pos1 = -1;
@@ -200,9 +265,10 @@ namespace WFAGoolgeSheet
                     }
                 }
             }
+            
             strx = textBox10.Text;
             stry = textBox11.Text;
-            if (!string.IsNullOrEmpty(strx) || !string.IsNullOrEmpty(strx))
+            if (!string.IsNullOrEmpty(strx) && !string.IsNullOrEmpty(strx))
             {
                 float x = float.Parse(strx);
                 float y = float.Parse(stry);
@@ -249,17 +315,9 @@ namespace WFAGoolgeSheet
 
         private void button6_Click(object sender, EventArgs e)
         {
-            //Form1 form1 = new Form1();
-            //string confid = "";
-            //string resul = "";
             Form1 f1 = (Form1)Application.OpenForms["Form1"];
             if (!string.IsNullOrEmpty(strx) && !string.IsNullOrEmpty(stry))
             {
-                //int f1x = f1.GetindexOf(f1.dataGridView1, "Latitude");
-                //int f1y = f1.GetindexOf(f1.dataGridView1, "Longitude");
-                //int f1c = f1.GetindexOf(f1.dataGridView1, "Confidence");
-                //int f1r = f1.GetindexOf(f1.dataGridView1, "RESULTS");
-
                 int pos = textBox6.Text.IndexOf("confidence is ");
                 f1.confid = textBox6.Text.Substring(pos + 14, 1);
                 float x = float.Parse(strx);
@@ -267,49 +325,27 @@ namespace WFAGoolgeSheet
                 if (x == f1.notfoundlat && y == f1.notfoundlon)
                 {
                     f1.confid = "X";
-                    //resul = confid;
                 }
                 else
                 {
                     if (inTerritory) f1.resul = "In";
                     else f1.resul = "O";
                 }
-                //f1.SetResultTime(resul);
-                //f1.dataGridView1.CurrentRow.Cells[f1c].Selected = true;
-                //f1.confid = confid;
-                //int c = f1.cellch.Count;
-                //f1.cellch.Add(new List<String>());
-                //f1.cellch[c].Add(f1.dataGridView1.CurrentCellAddress.ToString());
-                //f1.cellch[c].Add(confid);
 
-                //f1.dataGridView1.CurrentRow.Cells[f1x].Selected = true;
                 if (f1.confid == "X") f1.lat = "N/A";
                 else f1.lat = textBox10.Text;
-                //c = f1.cellch.Count;
-                //f1.cellch.Add(new List<String>());
-                //f1.cellch[c].Add(f1.dataGridView1.CurrentCellAddress.ToString());
-                //if (confid == "X") f1.cellch[c].Add("N/A");
-                //else f1.cellch[c].Add(textBox10.Text);
 
-                //f1.dataGridView1.CurrentRow.Cells[f1y].Selected = true;
                 if (f1.confid == "X") f1.lon = "N/A";
                 else f1.lon = textBox11.Text;
-                //c = f1.cellch.Count;
-                //f1.cellch.Add(new List<String>());
-                //f1.cellch[c].Add(f1.dataGridView1.CurrentCellAddress.ToString());
-                //if (confid == "X") f1.cellch[c].Add("N/A");
-                //else f1.cellch[c].Add(textBox11.Text);
                 f1.adjGPS = true;
             }
             else
                 textBox6.AppendText("\n GPS NOT saved - Latitude or Longitude are blank");
-            //textBox6.Text = Program.GTranslate(textBox6.Text);
         }
 
         private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox4.Checked && checkBox4.Focused) textBox3_TextChanged(sender, e);
-            //    textBox3_TextChanged(sender, e);
         }
 
         private void radioButton10_CheckedChanged(object sender, EventArgs e)

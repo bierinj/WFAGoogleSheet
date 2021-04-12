@@ -30,7 +30,19 @@
       <Value Profile="(Default)">0, 0</Value>
     </Setting>
     <Setting Name="Language" Type="System.String" Scope="User">
-      <Value Profile="(Default)">sp-EC</Value>
+      <Value Profile="(Default)">en-US</Value>
+    </Setting>
+    <Setting Name="gMapZoom" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="gMapSource" Type="System.String" Scope="User">
+      <Value Profile="(Default)">BingMapProvider</Value>
+    </Setting>
+    <Setting Name="WebKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AvP6VJeoU5ewXQPPt8Q0ce0r_-B3SWb6Ix1Zt5Ece0CyjXSmr1MdorJWGQfJ9UfD</Value>
+    </Setting>
+    <Setting Name="WebURL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&amp;adminDistrict=Quito&amp;locality=Guamani&amp;postalCode=-&amp;addressLine={addressLine}&amp;key=</Value>
     </Setting>
   </Settings>
 </SettingsFile>
