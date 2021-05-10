@@ -171,6 +171,7 @@
             resources.ApplyResources(this.radioButton10, "radioButton10");
             this.radioButton10.Name = "radioButton10";
             this.radioButton10.TabStop = true;
+            this.radioButton10.Tag = "10";
             this.radioButton10.UseVisualStyleBackColor = true;
             this.radioButton10.CheckedChanged += new System.EventHandler(this.radioButton10_CheckedChanged);
             // 
@@ -179,6 +180,7 @@
             resources.ApplyResources(this.radioButton9, "radioButton9");
             this.radioButton9.Name = "radioButton9";
             this.radioButton9.TabStop = true;
+            this.radioButton9.Tag = "9";
             this.radioButton9.UseVisualStyleBackColor = true;
             // 
             // radioButton7
@@ -186,6 +188,7 @@
             resources.ApplyResources(this.radioButton7, "radioButton7");
             this.radioButton7.Name = "radioButton7";
             this.radioButton7.TabStop = true;
+            this.radioButton7.Tag = "7";
             this.radioButton7.UseVisualStyleBackColor = true;
             // 
             // radioButton8
@@ -193,6 +196,7 @@
             resources.ApplyResources(this.radioButton8, "radioButton8");
             this.radioButton8.Name = "radioButton8";
             this.radioButton8.TabStop = true;
+            this.radioButton8.Tag = "8";
             this.radioButton8.UseVisualStyleBackColor = true;
             // 
             // radioButton4
@@ -200,6 +204,7 @@
             resources.ApplyResources(this.radioButton4, "radioButton4");
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.TabStop = true;
+            this.radioButton4.Tag = "4";
             this.radioButton4.UseVisualStyleBackColor = true;
             // 
             // radioButton5
@@ -207,6 +212,7 @@
             resources.ApplyResources(this.radioButton5, "radioButton5");
             this.radioButton5.Name = "radioButton5";
             this.radioButton5.TabStop = true;
+            this.radioButton5.Tag = "5";
             this.radioButton5.UseVisualStyleBackColor = true;
             // 
             // radioButton6
@@ -214,6 +220,7 @@
             resources.ApplyResources(this.radioButton6, "radioButton6");
             this.radioButton6.Name = "radioButton6";
             this.radioButton6.TabStop = true;
+            this.radioButton6.Tag = "6";
             this.radioButton6.UseVisualStyleBackColor = true;
             // 
             // radioButton1
@@ -221,6 +228,7 @@
             resources.ApplyResources(this.radioButton1, "radioButton1");
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.TabStop = true;
+            this.radioButton1.Tag = "1";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
             // radioButton2
@@ -228,6 +236,7 @@
             resources.ApplyResources(this.radioButton2, "radioButton2");
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.TabStop = true;
+            this.radioButton2.Tag = "2";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
             // radioButton3
@@ -235,6 +244,7 @@
             resources.ApplyResources(this.radioButton3, "radioButton3");
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.TabStop = true;
+            this.radioButton3.Tag = "3";
             this.radioButton3.UseVisualStyleBackColor = true;
             // 
             // button1

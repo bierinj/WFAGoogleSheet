@@ -231,6 +231,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="DataGridViewCellMouseClickArgs.cs" />
     <Compile Include="Form0.cs">
       <SubType>Form</SubType>
     </Compile>

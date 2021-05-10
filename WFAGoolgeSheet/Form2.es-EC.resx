@@ -173,6 +173,9 @@
   <data name="label5.Text" xml:space="preserve">
     <value>Intento</value>
   </data>
+  <data name="textBox6.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>No</value>
+  </data>
   <data name="textBox6.Size" type="System.Drawing.Size, System.Drawing">
     <value>618, 167</value>
   </data>

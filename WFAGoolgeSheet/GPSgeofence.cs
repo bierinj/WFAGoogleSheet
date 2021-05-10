@@ -16,25 +16,15 @@
     /// </summary>
     public partial class GPSgeofence : Component
     {
-        // static GPS fence values
-        // and Bing Maps values  (now gotten from Property Settings)
-     //
-     //
-     //
         /// <summary>
         /// Defines the bkey.
         /// </summary>
         public string bkey = Properties.Settings.Default.WebKey;
 
         /// <summary>
-        /// Defines the form1.
+        /// Defines the fenceName.
         /// </summary>
-        internal Form1 form1 = new Form1();
-
-        /// <summary>
-        /// Defines the GPSfenceDone.
-        /// </summary>
-        public bool GPSfenceDone = false;
+        public string fenceName;
 
         /// <summary>
         /// Defines the polyCorners.
@@ -52,16 +42,15 @@
         public List<float> polyY = new List<float>();
 
         /// <summary>
-        /// Defines the fenceName.
-        /// </summary>
-        public string fenceName;
-
-        /// <summary>
         /// Defines the firstTime.
         /// </summary>
         internal static bool firstTime = true;
 
-        //float x, y = 0;                                   // point to be tested
+        /// <summary>
+        /// Defines the form1.
+        /// </summary>
+        internal Form1 form1 = new Form1();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GPSgeofence"/> class.
         /// </summary>
@@ -82,11 +71,41 @@
         }
 
         /// <summary>
+        /// Gets the mc2.
+        /// </summary>
+        public Form1 mc2 { get; private set; }
+
+        /// <summary>
+        /// The PointInPolygon.
+        /// </summary>
+        /// <param name="x">The x<see cref="float"/>.</param>
+        /// <param name="y">The y<see cref="float"/>.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
+        public bool PointInPolygon(float x, float y)
+        {
+            int i, j = polyCorners - 1;
+            bool oddNodes = false;
+
+            for (i = 0; i < polyCorners; i++)
+            {
+                if ((polyY[i] < y && polyY[j] >= y
+                || polyY[j] < y && polyY[i] >= y)
+                && (polyX[i] <= x || polyX[j] <= x))
+                {
+                    oddNodes ^= (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < x);
+                }
+                j = i;
+            }
+            return oddNodes;
+        }
+
+        /// <summary>
         /// The ReadGPSfence.
         /// </summary>
         public void ReadGPSfence()
         {
-            if (GPSfenceDone) return;
+
+            if (Form1.GPSfenceDone) return;
             form1.startPB(System.Drawing.Color.Green);
             form1.textBox1.Text = " ..logging in ";
             form1.textBox1.Update();
@@ -148,47 +167,7 @@
                 float.TryParse(response.Values[i][2].ToString(), out tempx);
                 polyY.Add(tempx);
             }
-            GPSfenceDone = true;
-        }
-
-        //  Globals which should be set before calling this function:
-        //
-        //  int    polyCorners  =  how many corners the polygon has
-        //  float  polyX[]      =  horizontal coordinates of corners
-        //  float  polyY[]      =  vertical coordinates of corners
-        //  float  x, y         =  point to be tested
-        //
-        //  (Globals are used in this example for purposes of speed.  Change as
-        //  desired.)
-        //
-        //  The function will return YES if the point x,y is inside the polygon, or
-        //  NO if it is not.  If the point is exactly on the edge of the polygon,
-        //  then the function may return YES or NO.
-        //
-        //  Note that division by zero is avoided because the division is protected
-        //  by the "if" clause which surrounds it.
-        /// <summary>
-        /// The PointInPolygon.
-        /// </summary>
-        /// <param name="x">The x<see cref="float"/>.</param>
-        /// <param name="y">The y<see cref="float"/>.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
-        public bool PointInPolygon(float x, float y)
-        {
-            int i, j = polyCorners - 1;
-            bool oddNodes = false;
-
-            for (i = 0; i < polyCorners; i++)
-            {
-                if ((polyY[i] < y && polyY[j] >= y
-                || polyY[j] < y && polyY[i] >= y)
-                && (polyX[i] <= x || polyX[j] <= x))
-                {
-                    oddNodes ^= (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < x);
-                }
-                j = i;
-            }
-            return oddNodes;
+            Form1.GPSfenceDone = true;
         }
     }
 }

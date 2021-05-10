@@ -191,5 +191,53 @@ namespace WFAGoolgeSheet.Properties {
                 this["WebURL"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0d6e23c01d284d5082a0a87aeb2de83e")]
+        public string AzureKey {
+            get {
+                return ((string)(this["AzureKey"]));
+            }
+            set {
+                this["AzureKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://api.cognitive.microsofttranslator.com/")]
+        public string AzureEndPt {
+            get {
+                return ((string)(this["AzureEndPt"]));
+            }
+            set {
+                this["AzureEndPt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("brazilsouth")]
+        public string AzureLoc {
+            get {
+                return ((string)(this["AzureLoc"]));
+            }
+            set {
+                this["AzureLoc"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool translate {
+            get {
+                return ((bool)(this["translate"]));
+            }
+            set {
+                this["translate"] = value;
+            }
+        }
     }
 }

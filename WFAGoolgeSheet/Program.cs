@@ -1,13 +1,15 @@
 ﻿namespace WFAGoolgeSheet
 {
     using Google.GData.Client;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
-    using System.Net;
+    using System.Net.Http;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
@@ -17,36 +19,24 @@
     internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// Defines the CloseParentheses.
         /// </summary>
-        [STAThread]
+        private static readonly char[] CloseParentheses = { '+', ')', ']', '}' };
 
-
-        internal static void Main()
-        {
-            Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-        }
-
-        //
-        // remove + from changes array
-        //
-        // Arrays should contain paired parentheses in the same order:
         /// <summary>
         /// Defines the OpenParentheses.
         /// </summary>
         private static readonly char[] OpenParentheses = { '+', '(', '[', '{' };
 
         /// <summary>
-        /// Defines the CloseParentheses.
-        /// </summary>
-        private static readonly char[] CloseParentheses = { '+', ')', ']', '}' };
-
-        /// <summary>
         /// Defines the formisup.
         /// </summary>
         public static bool formisup = false;
+
+        /// <summary>
+        /// Defines the form1.
+        /// </summary>
+        internal static Form1 form1 = new Form1();
 
         /// <summary>
         /// Gets the WFAgoolgeSheet.
@@ -85,9 +75,6 @@
             return parentheses.Count == 0;
         }
 
-        //
-        // map column to spreadsheet letter
-        //
         /// <summary>
         /// The ColumnAdress.
         /// </summary>
@@ -104,6 +91,173 @@
             int mod = col % 26;
             if (mod == 0) { mod = 26; div--; }
             return ColumnAdress(div) + ColumnAdress(mod);
+        }
+
+        /// <summary>
+        /// The EnclosedStrings.
+        /// </summary>
+        /// <param name="s">The s<see cref="string"/>.</param>
+        /// <param name="begin">The begin<see cref="string"/>.</param>
+        /// <param name="end">The end<see cref="string"/>.</param>
+        /// <returns>The <see cref="IEnumerable{string}"/>.</returns>
+        public static IEnumerable<string> EnclosedStrings(
+    this string s,
+    string begin,
+    string end)
+        {
+            int beginPos = s.IndexOf(begin, 0);
+            while (beginPos >= 0)
+            {
+                int start = beginPos + begin.Length;
+                int stop = s.IndexOf(end, start);
+                if (stop < 0)
+                    yield break;
+                yield return s.Substring(start, stop - start);
+                beginPos = s.IndexOf(begin, stop + end.Length);
+            }
+        }
+
+        /// <summary>
+        /// Extract only the hex digits from a string.
+        /// </summary>
+        /// <param name="input">The input<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
+        public static string ExtractHexDigits(string input)
+        {
+            // remove any characters that are not digits (like #)
+            Regex isHexDigit
+               = new Regex("[abcdefABCDEF\\d]+", RegexOptions.Compiled);
+            string newnum = "";
+            foreach (char c in input)
+            {
+                if (isHexDigit.IsMatch(c.ToString()))
+                    newnum += c.ToString();
+            }
+            return newnum;
+        }
+
+        /// <summary>
+        /// The GoogleMapUrl.
+        /// </summary>
+        /// <param name="query">The query<see cref="string"/>.</param>
+        /// <param name="map_type">The map_type<see cref="string"/>.</param>
+        /// <param name="zoom">The zoom<see cref="int"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
+        public static string GoogleMapUrl(string query, string map_type, int zoom)
+        {
+            // Start with the base map URL.
+            // http://maps.google.com/maps/api/geocode/xml?address=Humberto+Albornoz+1339+Y+Lizarazu+-+Humberto+Albornoz&sensor=false
+            string url = "http://maps.google.com/maps?";
+            //string url = "http://maps.google.com/maps/api/geocode/xml?address=";
+
+            // Add the query.
+            url += "q=" + HttpUtility.UrlEncode(query, Encoding.UTF8);
+
+            // Add the type.
+            map_type = GoogleMapTypeCode(map_type);
+            if (map_type != null) url += "&t=" + map_type;
+
+            // Add the zoom level.
+            if (zoom > 0) url += "&z=" + zoom.ToString();
+            GPSgeofence fence = new GPSgeofence();
+            bool p = fence.PointInPolygon(
+                (float)-0.31920, (float)-78.56841);
+            if (p)
+                Console.WriteLine("Point is in");
+            else
+                Console.WriteLine("Point is out");
+            return url;
+        }
+
+        /// <summary>
+        /// The GTranslate.
+        /// </summary>
+        /// <param name="sent">The sent<see cref="string"/>.</param>
+        /// <param name="idioma">The idioma<see cref="string"/>.</param>
+        /// <param name="detectonly">The detectonly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="String"/>.</returns>
+        public static async Task<string> gTranslate(string sent, string idioma, bool detectonly)
+        {
+            string RetSentance = "";
+            string subscriptionKey = Properties.Settings.Default.AzureKey;
+            string endpoint = Properties.Settings.Default.AzureEndPt;
+
+            /// <summary>
+            /// Defines the location.
+            /// </summary>
+            string location = Properties.Settings.Default.AzureLoc;
+
+            if (!form1.checkBox5.Checked || (string.IsNullOrEmpty(subscriptionKey)) ||
+                string.IsNullOrEmpty(endpoint) ||
+                string.IsNullOrEmpty(location)) return ("");
+            RetSentance = sent.Replace("(en):", "");
+            RetSentance = sent.Replace("(es):", "");
+            form1.textBox1.Text = string.Format(" translate {0}", idioma);
+            form1.textBox1.Refresh();
+            Thread.Sleep(100);
+            // Input and output languages are defined as parameters.
+            // Build the request.
+            string route = null;
+            if (detectonly)
+                route = "detect?api-version=3.0";
+            else
+            {
+                if (idioma == "en")
+                    route = @"translate?api-version=3.0&from=en&to=es";
+                else
+                    route = @"translate?api-version=3.0&from=es&to=en";
+            }
+
+            string textToTranslate = RetSentance;
+            textToTranslate = textToTranslate.Where(c => !char.IsPunctuation(c)).Aggregate("", (current, c) => current + c);
+            object[] body = new object[] { new { Text = textToTranslate } };
+            string requestBody = JsonConvert.SerializeObject(body);
+            try
+            {
+
+                using (var client = new HttpClient())
+                using (var request = new HttpRequestMessage())
+                {
+                    // Build the request.
+                    request.Method = HttpMethod.Post;
+                    request.RequestUri = new Uri(endpoint + route);
+                    request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                    request.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+                    request.Headers.Add("Ocp-Apim-Subscription-Region", location);
+
+                    // Send the request and get response.
+                    var response = await client.SendAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                    //System.IO.Stream apiresponse = await client.GetStreamAsync(request.ToString())/*.ConfigureAwait(false)*/;
+                    // Read response as a string.
+
+                    if (response.IsSuccessStatusCode)
+                        RetSentance = await response.Content.ReadAsStringAsync();
+                    if (detectonly)
+                    {
+                        string[] retstr = RetSentance.Split(':');
+                        retstr = retstr[1].Split(',');
+                        retstr[0] = retstr[0].Replace("\\\"", "");
+                        retstr = retstr[0].Split('"');
+                        RetSentance = retstr[1];
+                    }
+                    else
+                    {
+                        string[] retstr = RetSentance.Split(':');
+                        retstr = retstr[2].Split(',');
+                        retstr[0] = retstr[0].Replace("\\\"", "");
+                        retstr = retstr[0].Split('"');
+                        RetSentance = retstr[1];
+                    }
+                    if (sent.Contains("(en):")) RetSentance = "(en):" + RetSentance;
+                    if (sent.Contains("(es):")) RetSentance = "(es):" + RetSentance;
+                    return (RetSentance);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return ("");
         }
 
         /// <summary>
@@ -144,6 +298,37 @@
         }
 
         /// <summary>
+        /// The ReplaceFirstOccurrence.
+        /// </summary>
+        /// <param name="Source">The Source<see cref="string"/>.</param>
+        /// <param name="Find">The Find<see cref="string"/>.</param>
+        /// <param name="Replace">The Replace<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
+        public static string ReplaceFirstOccurrence(string Source, string Find, string Replace)
+        {
+            //int Place = Source.IndexOf(Find);
+            //string result = Source.Remove(Place, Find.Length).Insert(Place, Replace);
+            //return result;
+            Regex r = new Regex(Find, RegexOptions.IgnoreCase);
+
+            return r.Replace(Source, Replace, 1);
+        }
+
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+
+
+        internal static void Main()
+        {
+            //Application.SetCompatibleTextRenderingDefault(false);
+            Application.EnableVisualStyles();
+            //Application.Run(new CustomRowSelectionPainting());
+            Application.Run(new Form1());
+        }
+
+        /// <summary>
         /// The Try.
         /// </summary>
         /// <typeparam name="T">.</typeparam>
@@ -155,62 +340,6 @@
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Extract only the hex digits from a string.
-        /// </summary>
-        /// <param name="input">The input<see cref="string"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
-        public static string ExtractHexDigits(string input)
-        {
-            // remove any characters that are not digits (like #)
-            Regex isHexDigit
-               = new Regex("[abcdefABCDEF\\d]+", RegexOptions.Compiled);
-            string newnum = "";
-            foreach (char c in input)
-            {
-                if (isHexDigit.IsMatch(c.ToString()))
-                    newnum += c.ToString();
-            }
-            return newnum;
-        }
-
-        //
-        // Return a Google map URL.
-        //
-        /// <summary>
-        /// The GoogleMapUrl.
-        /// </summary>
-        /// <param name="query">The query<see cref="string"/>.</param>
-        /// <param name="map_type">The map_type<see cref="string"/>.</param>
-        /// <param name="zoom">The zoom<see cref="int"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
-        public static string GoogleMapUrl(string query, string map_type, int zoom)
-        {
-            // Start with the base map URL.
-            // http://maps.google.com/maps/api/geocode/xml?address=Humberto+Albornoz+1339+Y+Lizarazu+-+Humberto+Albornoz&sensor=false
-            string url = "http://maps.google.com/maps?";
-            //string url = "http://maps.google.com/maps/api/geocode/xml?address=";
-
-            // Add the query.
-            url += "q=" + HttpUtility.UrlEncode(query, Encoding.UTF8);
-
-            // Add the type.
-            map_type = GoogleMapTypeCode(map_type);
-            if (map_type != null) url += "&t=" + map_type;
-
-            // Add the zoom level.
-            if (zoom > 0) url += "&z=" + zoom.ToString();
-            GPSgeofence fence = new GPSgeofence();
-            bool p = fence.PointInPolygon(
-                (float)-0.31920, (float)-78.56841);
-            if (p)
-                Console.WriteLine("Point is in");
-            else
-                Console.WriteLine("Point is out");
-            return url;
-        }
-
-        // Return a Google map type code.
         /// <summary>
         /// The GoogleMapTypeCode.
         /// </summary>
@@ -236,66 +365,11 @@
             }
         }
 
-        //
-        // translate a textbox
-        //
         /// <summary>
-        /// The GTranslate.
+        /// Defines the <see cref="CustomRowSelectionPainting" />.
         /// </summary>
-        /// <param name="sentance">The sentance<see cref="String"/>.</param>
-        /// <returns>The <see cref="String"/>.</returns>
-        public static String GTranslate(String sentance)
+        private class CustomRowSelectionPainting : Form
         {
-            string RetSentance = "";
-            var toLanguage = "sp";//Spanish
-            var fromLanguage = "en";//English
-            var punctuation = sentance.Where(Char.IsPunctuation).Distinct().ToArray();
-            var words = sentance.Split().Select(x => x.Trim(punctuation));
-            foreach (var word in words)
-            {
-                var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
-                var webClient = new WebClient
-                {
-                    Encoding = System.Text.Encoding.UTF8
-                };
-                var result = webClient.DownloadString(url);
-                try
-                {
-                    result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
-                    RetSentance = RetSentance + " " + result;
-                }
-                catch
-                {
-                    return "";
-                }
-            }
-            return (RetSentance);
-        }
-
-        //Get the HtmlAgilityPack here: http://www.codeplex.com/htmlagilitypack
-        /// <summary>
-        /// The Try.
-        /// </summary>
-        /// <typeparam name="T">.</typeparam>
-        /// <param name="func">The func<see cref="Func{T}"/>.</param>
-        /// <param name="retries">The retries<see cref="int"/>.</param>
-        /// <returns>The <see cref="Task{T}"/>.</returns>
-        public static async Task<T> Try<T>(this Func<T> func, int retries)
-        {
-            var i = 0;
-            do
-            {
-                try
-                {
-                    return await Task.Run(func);
-                    //Task t1 = Task.Run(() => Method1());
-                }
-                catch (TaskCanceledException exception)
-                {
-                    Console.WriteLine(exception.Message);
-                }
-            } while (i++ < retries);
-            return default(T);
         }
     }
 }

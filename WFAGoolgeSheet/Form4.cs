@@ -58,10 +58,6 @@
         {
             InitializeComponent();
 
-            //this.Font = System.Drawing.SystemFonts.IconTitleFont;
-            //SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
-            //this.FormClosing += new FormClosingEventHandler(Form4_FormClosing);
-
             this.Activated += new EventHandler(Sub_LostFocus);
             this.Deactivate += new EventHandler(Sub_LostFocus);
         }
@@ -83,12 +79,7 @@
         private void Sub_LostFocus(object sender, EventArgs e)
         {
             Form4 form4 = new Form4();
-            //MessageBox.Show("'" + this.Text + "' lost focus");
-
-            //this.Show();
             form4.WindowState = FormWindowState.Normal;
-            //form4.BringToFront();
-            //form4.TopLevel = true;
             form4.Focus();
         }
 

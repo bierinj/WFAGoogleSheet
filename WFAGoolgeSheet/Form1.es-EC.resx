@@ -188,9 +188,6 @@
   <data name="label3.Text" xml:space="preserve">
     <value>Buscar en</value>
   </data>
-  <data name="radioButton2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 35</value>
-  </data>
   <data name="radioButton2.Size" type="System.Drawing.Size, System.Drawing">
     <value>72, 17</value>
   </data>
@@ -302,11 +299,17 @@
   <data name="button13.Text" xml:space="preserve">
     <value>Anterior</value>
   </data>
+  <data name="textBox9.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
   <data name="textBox9.Location" type="System.Drawing.Point, System.Drawing">
     <value>204, 445</value>
   </data>
   <data name="textBox9.Size" type="System.Drawing.Size, System.Drawing">
     <value>45, 20</value>
+  </data>
+  <data name="textBox10.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
   </data>
   <data name="textBox10.Location" type="System.Drawing.Point, System.Drawing">
     <value>282, 444</value>
@@ -314,14 +317,11 @@
   <data name="textBox10.Size" type="System.Drawing.Size, System.Drawing">
     <value>45, 20</value>
   </data>
+  <data name="label10.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
   <data name="label10.Location" type="System.Drawing.Point, System.Drawing">
     <value>255, 448</value>
-  </data>
-  <data name="radioButton5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 35</value>
-  </data>
-  <data name="groupBox3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>115, 4</value>
   </data>
   <data name="groupBox3.Size" type="System.Drawing.Size, System.Drawing">
     <value>85, 52</value>
@@ -331,6 +331,12 @@
   </data>
   <data name="textBox11.Location" type="System.Drawing.Point, System.Drawing">
     <value>263, 49</value>
+  </data>
+  <data name="checkBox5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>61, 17</value>
+  </data>
+  <data name="checkBox5.Text" xml:space="preserve">
+    <value>traducir</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Testigo Telefónico</value>

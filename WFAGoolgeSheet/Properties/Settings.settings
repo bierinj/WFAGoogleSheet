@@ -44,5 +44,17 @@
     <Setting Name="WebURL" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://dev.virtualearth.net/REST/v1/Locations?countryRegion=Ecuador&amp;adminDistrict=Quito&amp;locality=Guamani&amp;postalCode=-&amp;addressLine={addressLine}&amp;key=</Value>
     </Setting>
+    <Setting Name="AzureKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0d6e23c01d284d5082a0a87aeb2de83e</Value>
+    </Setting>
+    <Setting Name="AzureEndPt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://api.cognitive.microsofttranslator.com/</Value>
+    </Setting>
+    <Setting Name="AzureLoc" Type="System.String" Scope="User">
+      <Value Profile="(Default)">brazilsouth</Value>
+    </Setting>
+    <Setting Name="translate" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
