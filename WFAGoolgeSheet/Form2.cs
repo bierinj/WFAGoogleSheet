@@ -12,6 +12,11 @@
     public partial class Form2 : Form
     {
         /// <summary>
+        /// Defines the changes.
+        /// </summary>
+        internal bool changes = false;
+
+        /// <summary>
         /// Defines the formIsUp.
         /// </summary>
         internal bool formIsUp = false;
@@ -46,8 +51,12 @@
             this.Font = System.Drawing.SystemFonts.IconTitleFont;
             SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(SystemEvents_UserPreferenceChanged);
             this.FormClosing += new FormClosingEventHandler(Form2_FormClosing);
-
-            formIsUp = true;
+            for (int i = 0; i < groupBox1.Controls.Count; i++)
+            {
+                RadioButton rdb = (RadioButton)groupBox1.Controls[i];
+                rdb.CheckedChanged += new System.EventHandler(groupBox1_CheckedChanged);
+            }
+            changes = false;
         }
 
         /// <summary>
@@ -94,7 +103,12 @@
                 form4.Show();
             }
             else
+            {
+                bool ssav = changes;
                 textBox6.AppendText(" Address Is Blank");
+                changes = ssav;
+            }
+
             return;
         }
 
@@ -112,7 +126,7 @@
         }
 
         /// <summary>
-        /// The button1_Click.
+        /// The button1_Click. - "OK".
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
@@ -124,10 +138,13 @@
                 Form2 f2 = (Form2)Application.OpenForms["Form2"];
                 Form4 f4 = (Form4)Application.OpenForms["Form4"];
 
+                button1.BackColor = System.Drawing.Color.Coral;
+                button1.Update();
                 f1.attempt = textBox5.Text;
                 f1.notes = textBox6.Text;
 
                 preventExit = false;
+                changes = false;
                 formIsUp = false;
                 f2.Close(); f4.Close();
             }
@@ -139,19 +156,58 @@
         }
 
         /// <summary>
-        /// The button2_Click.
+        /// The button2_Click. - "Exit".
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button2_Click(object sender, EventArgs e)
         {
+            DialogResult result1 = DialogResult.No;
             try
             {
+                Form1 f1 = (Form1)Application.OpenForms["Form1"];
                 Form2 f2 = (Form2)Application.OpenForms["Form2"];
                 Form4 f4 = (Form4)Application.OpenForms["Form4"];
+
+                button2.BackColor = System.Drawing.Color.Coral;
+                button2.Update();
+                if (changes)
+                {
+                    if (f1.radioButton6.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                        "Important Question",
+                        MessageBoxButtons.YesNo);
+                    if (f1.radioButton5.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                        "Preguntas importantes",
+                        MessageBoxButtons.YesNo);
+
+                    //
+                    // Test the results of the previous 3 dialogs.
+                    //
+                    if (result1 == DialogResult.No || result1 == DialogResult.Retry)
+                    {
+                        //button1.BackColor = System.Drawing.Color.LightGreen;
+                        //button1.Update();
+                        button2.BackColor = System.Drawing.Color.LightGray;
+                        button2.Update();
+                        preventExit = true;
+                    }
+                    else
+                    {
+                        button1.BackColor = System.Drawing.Color.LightGray;
+                        button2.BackColor = System.Drawing.Color.LightGray;
+                        preventExit = false;
+                        changes = false;
+                    }
+                }
+                button1.BackColor = System.Drawing.Color.LightGray;
+                button1.Update();
+                changes = false;
                 preventExit = false;
                 formIsUp = false;
                 f2.Close(); f4.Close();
+
             }
             catch (NullReferenceException ne)
             {
@@ -161,20 +217,53 @@
         }
 
         /// <summary>
-        /// The button3_Click.
+        /// The button3_Click. - "Next".
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button3_Click(object sender, EventArgs e)
         {
+            DialogResult result1 = DialogResult.No;
             try
             {
+                Form1 f1 = (Form1)Application.OpenForms["Form1"];
                 Form2 f2 = (Form2)Application.OpenForms["Form2"];
                 Form4 f4 = (Form4)Application.OpenForms["Form4"];
+                if (changes)
+                {
+                    if (f1.radioButton6.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                        "Important Question",
+                        MessageBoxButtons.YesNo);
+                    if (f1.radioButton5.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                        "Preguntas importantes",
+                        MessageBoxButtons.YesNo);
 
-                formIsUp = false;
-                preventExit = false;
-                f2.Close(); f4.Close();
+                    //
+                    // Test the results of the previous 3 dialogs.
+                    //
+                    if (result1 == DialogResult.No || result1 == DialogResult.Retry)
+                    {
+                        //button1.BackColor = System.Drawing.Color.LightGreen;
+                        preventExit = true;
+                    }
+                    else
+                    {
+                        preventExit = false;
+                        changes = false;
+                    }
+
+                }
+                else
+                {
+                    button1.BackColor = System.Drawing.Color.LightGray;
+                    button1.Update();
+                    changes = false;
+                    preventExit = false;
+                    formIsUp = false;
+                    f2.Close(); f4.Close();
+                }
             }
             catch (NullReferenceException ne)
             {
@@ -184,20 +273,54 @@
         }
 
         /// <summary>
-        /// The button4_Click.
+        /// The button4_Click. - "Previous".
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button4_Click(object sender, EventArgs e)
         {
-            Form1 form1 = (Form1)Application.OpenForms["Form1"];
+
+            DialogResult result1 = DialogResult.No;
             try
             {
+                Form1 f1 = (Form1)Application.OpenForms["Form1"];
                 Form2 f2 = (Form2)Application.OpenForms["Form2"];
                 Form4 f4 = (Form4)Application.OpenForms["Form4"];
-                preventExit = false;
-                formIsUp = false;
-                f2.Close(); f4.Close();
+                if (changes)
+                {
+                    if (f1.radioButton6.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
+                        "Important Question",
+                        MessageBoxButtons.YesNo);
+                    if (f1.radioButton5.Checked)
+                        result1 = System.Windows.Forms.MessageBox.Show("Hay cambios no guardados \n ¿Desea salir y perder estos cambios?",
+                        "Preguntas importantes",
+                        MessageBoxButtons.YesNo);
+
+                    //
+                    // Test the results of the previous 3 dialogs.
+                    //
+                    if (result1 == DialogResult.No || result1 == DialogResult.Retry)
+                    {
+                        //button1.BackColor = System.Drawing.Color.LightGreen;
+                        //button1.Update();
+                    }
+                    else
+                    {
+                        button1.BackColor = System.Drawing.Color.LightGray;
+                        preventExit = false;
+                        changes = false;
+                    }
+                }
+                else
+                {
+                    button1.BackColor = System.Drawing.Color.LightGray;
+                    button1.Update();
+                    changes = false;
+                    preventExit = false;
+                    formIsUp = false;
+                    f2.Close(); f4.Close();
+                }
             }
             catch (NullReferenceException ne)
             {
@@ -297,7 +420,10 @@
                 }
 
             }
+            bool ssav = changes;
             textBox6.AppendText(Environment.NewLine + NewText);
+            changes = ssav;
+            if (!changes) button1.BackColor = System.Drawing.Color.LightGray;
             if (checkBox4.Checked)
             {
                 textBox3_TextChanged(sender, e);
@@ -342,13 +468,17 @@
             {
                 if (f1.radioButton6.Checked)
                 {
+                    bool ssav = changes;
                     textBox6.AppendText("\n GPS NOT saved - Latitude or Longitude are blank");
                     if (checkBox4.Checked) textBox6.AppendText(" No Map");
+                    changes = ssav;
                 }
                 if (f1.radioButton5.Checked)
                 {
+                    bool ssav = changes;
                     textBox6.AppendText("\n GPS NO guardado - Latitud o Longitud están en blanco");
                     if (checkBox4.Checked) textBox6.AppendText(" No Mapa");
+                    changes = ssav;
                 }
             }
         }
@@ -361,8 +491,10 @@
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
+            bool ssav = changes;
             if (!form1.checkBox4.Checked && checkBox2.Checked)
                 button2.PerformClick();
+            changes = ssav;
         }
 
         /// <summary>
@@ -372,8 +504,11 @@
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
+            if (!formIsUp) return;
+            bool ssav = changes;
             if (checkBox3.Checked)
                 button5.PerformClick();
+            changes = ssav;
         }
 
         /// <summary>
@@ -383,7 +518,9 @@
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
+            bool ssav = changes;
             if (checkBox4.Checked && checkBox4.Focused) textBox3_TextChanged(sender, e);
+            changes = ssav;
         }
 
         /// <summary>
@@ -411,6 +548,7 @@
             Form1 form1 = new Form1();
             form1.button4.BackColor = System.Drawing.Color.LightGray;
             form1.button4.Update();
+            button1.BackColor = System.Drawing.Color.LightGray;
             if (form1.radioButton5.Checked)
             {
                 int i = form1.comboBox1.SelectedIndex;
@@ -439,8 +577,22 @@
                 form1.comboBox1.SelectedIndex = i;
                 form1.comboBox1.Refresh();
             }
+            changes = false;
+            formIsUp = true;
             if (checkBox3.Checked)
                 button5.PerformClick();
+        }
+
+        /// <summary>
+        /// The groupBox1_CheckedChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        private void groupBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!formIsUp) return;
+            button1.BackColor = System.Drawing.Color.LightGreen;
+            changes = true;
         }
 
         /// <summary>
@@ -454,6 +606,7 @@
             GroupBox g = sender as GroupBox;
             var a = from RadioButton r in g.Controls where r.Checked == true select r.Tag.ToString();
             f1.checkedRadio = a.First();
+            button1.BackColor = System.Drawing.Color.LightGreen;
         }
 
         /// <summary>
@@ -492,6 +645,18 @@
         {
             if (checkBox3.Checked)
                 button5.PerformClick();
+        }
+
+        /// <summary>
+        /// The textBox6_TextChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+            if (!formIsUp) return;
+            button1.BackColor = System.Drawing.Color.LightGreen;
+            changes = true;
         }
     }
 }

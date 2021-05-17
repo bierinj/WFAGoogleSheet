@@ -1,11 +1,234 @@
 ﻿namespace WFAGoolgeSheet
 {
-    partial class Form2
+    /// <summary>
+    /// Defines the <see cref="Form2" />.
+    /// </summary>
+    public partial class Form2
     {
         /// <summary>
-        /// Required designer variable.
+        /// Defines the button5.
+        /// </summary>
+        public System.Windows.Forms.Button button5;
+
+        /// <summary>
+        /// Defines the button6.
+        /// </summary>
+        public System.Windows.Forms.Button button6;
+
+        /// <summary>
+        /// Defines the checkBox1.
+        /// </summary>
+        public System.Windows.Forms.CheckBox checkBox1;
+
+        /// <summary>
+        /// Defines the checkBox2.
+        /// </summary>
+        public System.Windows.Forms.CheckBox checkBox2;
+
+        /// <summary>
+        /// Defines the checkBox3.
+        /// </summary>
+        public System.Windows.Forms.CheckBox checkBox3;
+
+        /// <summary>
+        /// Defines the checkBox4.
+        /// </summary>
+        public System.Windows.Forms.CheckBox checkBox4;
+
+        /// <summary>
+        /// Defines the groupBox1.
+        /// </summary>
+        public System.Windows.Forms.GroupBox groupBox1;
+
+        /// <summary>
+        /// Defines the radioButton1.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton1;
+
+        /// <summary>
+        /// Defines the radioButton10.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton10;
+
+        /// <summary>
+        /// Defines the radioButton2.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton2;
+
+        /// <summary>
+        /// Defines the radioButton3.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton3;
+
+        /// <summary>
+        /// Defines the radioButton4.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton4;
+
+        /// <summary>
+        /// Defines the radioButton5.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton5;
+
+        /// <summary>
+        /// Defines the radioButton6.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton6;
+
+        /// <summary>
+        /// Defines the radioButton7.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton7;
+
+        /// <summary>
+        /// Defines the radioButton8.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton8;
+
+        /// <summary>
+        /// Defines the radioButton9.
+        /// </summary>
+        public System.Windows.Forms.RadioButton radioButton9;
+
+        /// <summary>
+        /// Defines the textBox1.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox1;
+
+        /// <summary>
+        /// Defines the textBox10.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox10;
+
+        /// <summary>
+        /// Defines the textBox11.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox11;
+
+        /// <summary>
+        /// Defines the textBox2.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox2;
+
+        /// <summary>
+        /// Defines the textBox3.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox3;
+
+        /// <summary>
+        /// Defines the textBox4.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox4;
+
+        /// <summary>
+        /// Defines the textBox5.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox5;
+
+        /// <summary>
+        /// Defines the textBox6.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox6;
+
+        /// <summary>
+        /// Defines the textBox7.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox7;
+
+        /// <summary>
+        /// Defines the textBox8.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox8;
+
+        /// <summary>
+        /// Defines the textBox9.
+        /// </summary>
+        public System.Windows.Forms.TextBox textBox9;
+
+        /// <summary>
+        /// Defines the button1.
+        /// </summary>
+        private System.Windows.Forms.Button button1;
+
+        /// <summary>
+        /// Defines the button2.
+        /// </summary>
+        private System.Windows.Forms.Button button2;
+
+        /// <summary>
+        /// Defines the button3.
+        /// </summary>
+        private System.Windows.Forms.Button button3;
+
+        /// <summary>
+        /// Defines the button4.
+        /// </summary>
+        private System.Windows.Forms.Button button4;
+
+        /// <summary>
+        /// Required designer variable..
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Defines the label1.
+        /// </summary>
+        private System.Windows.Forms.Label label1;
+
+        /// <summary>
+        /// Defines the label10.
+        /// </summary>
+        private System.Windows.Forms.Label label10;
+
+        /// <summary>
+        /// Defines the label11.
+        /// </summary>
+        private System.Windows.Forms.Label label11;
+
+        /// <summary>
+        /// Defines the label12.
+        /// </summary>
+        private System.Windows.Forms.Label label12;
+
+        /// <summary>
+        /// Defines the label2.
+        /// </summary>
+        private System.Windows.Forms.Label label2;
+
+        /// <summary>
+        /// Defines the label3.
+        /// </summary>
+        private System.Windows.Forms.Label label3;
+
+        /// <summary>
+        /// Defines the label4.
+        /// </summary>
+        private System.Windows.Forms.Label label4;
+
+        /// <summary>
+        /// Defines the label5.
+        /// </summary>
+        private System.Windows.Forms.Label label5;
+
+        /// <summary>
+        /// Defines the label6.
+        /// </summary>
+        private System.Windows.Forms.Label label6;
+
+        /// <summary>
+        /// Defines the label7.
+        /// </summary>
+        private System.Windows.Forms.Label label7;
+
+        /// <summary>
+        /// Defines the label8.
+        /// </summary>
+        private System.Windows.Forms.Label label8;
+
+        /// <summary>
+        /// Defines the label9.
+        /// </summary>
+        private System.Windows.Forms.Label label9;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -19,8 +242,6 @@
             }
             base.Dispose(disposing);
         }
-
-        #region Windows Form Designer generated code
 
         /// <summary>
         /// Required method for Designer support - do not modify
@@ -138,6 +359,7 @@
             // 
             resources.ApplyResources(this.textBox6, "textBox6");
             this.textBox6.Name = "textBox6";
+            this.textBox6.TextChanged += new System.EventHandler(this.textBox6_TextChanged);
             // 
             // label6
             // 
@@ -422,54 +644,6 @@
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
-
-        #endregion
-
-        public System.Windows.Forms.TextBox textBox1;
-        public System.Windows.Forms.TextBox textBox2;
-        public System.Windows.Forms.TextBox textBox3;
-        public System.Windows.Forms.TextBox textBox4;
-        public System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label5;
-        public System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        public System.Windows.Forms.RadioButton radioButton6;
-        public System.Windows.Forms.RadioButton radioButton1;
-        public System.Windows.Forms.RadioButton radioButton5;
-        public System.Windows.Forms.RadioButton radioButton2;
-        public System.Windows.Forms.RadioButton radioButton4;
-        public System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.Button button3;
-        public System.Windows.Forms.TextBox textBox7;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Button button4;
-        public System.Windows.Forms.TextBox textBox8;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label10;
-        public System.Windows.Forms.TextBox textBox9;
-        public System.Windows.Forms.CheckBox checkBox1;
-        public System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label12;
-        public System.Windows.Forms.CheckBox checkBox3;
-        public System.Windows.Forms.Button button5;
-        public System.Windows.Forms.CheckBox checkBox4;
-        public System.Windows.Forms.RadioButton radioButton8;
-        public System.Windows.Forms.Button button6;
-        public System.Windows.Forms.RadioButton radioButton10;
-        public System.Windows.Forms.RadioButton radioButton9;
-        public System.Windows.Forms.RadioButton radioButton7;
-        public System.Windows.Forms.TextBox textBox10;
-        public System.Windows.Forms.TextBox textBox11;
     }
 }

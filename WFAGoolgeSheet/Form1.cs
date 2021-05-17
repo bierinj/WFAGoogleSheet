@@ -200,6 +200,11 @@
         public String spreadsheetId = null;// Spreadsheet ID
 
         /// <summary>
+        /// Defines the iTopRow.
+        /// </summary>
+        internal static int iTopRow = 0;
+
+        /// <summary>
         /// Defines the oldCellY.
         /// </summary>
         internal static int oldCellY = -1;
@@ -787,6 +792,7 @@
                 int x = 1;
                 if (rowToShow < firstVisible)
                 {
+                    while (view.Rows[rowToShow].Visible == false) rowToShow++;
                     view.FirstDisplayedScrollingRowIndex = rowToShow;
                 }
                 else if (rowToShow > firstVisible + countVisible - x)
@@ -843,6 +849,8 @@
             if (DataChanged)
             {
                 DialogResult result1 = DialogResult.No;
+                button1.BackColor = System.Drawing.Color.Coral;
+                button1.Update();
                 if (radioButton6.Checked)
                     result1 = System.Windows.Forms.MessageBox.Show(" There are unsaved changes \n Do you want to exit and loose these changes?",
                     "Important Question",
@@ -855,10 +863,14 @@
                 // Test the results of the previous 3 dialogs.
                 //
                 if (result1 == DialogResult.No || result1 == DialogResult.Retry)
-                    return;
+                {
+                    button1.BackColor = System.Drawing.Color.LightGray;
+                    button1.Update();
+                }
+                return;
             }
             if (checkBox5.Checked) Properties.Settings.Default.translate = true;
-            else Properties.Settings.Default.translate = false; 
+            else Properties.Settings.Default.translate = false;
             Properties.Settings.Default.Save();
             System.Windows.Forms.Application.Exit();
         }
@@ -913,6 +925,7 @@
         private void button11_Click(object sender, EventArgs e)
         {
             Form3 form3 = new Form3();
+            dataGridView1.Enabled = false;
             int sel_rows = 0;
             button11.Visible = true;
             bool _am = false;
@@ -1055,19 +1068,24 @@
                 button11.Update();
                 checkBox4.Checked = false;
             }
-
+            seeVisibleRow(dataGridView1, s);
+            Thread.Sleep(300);
+            dataGridView1.Enabled = true;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
             dataGridView1.Refresh();
             return;
         }
 
         /// <summary>
-        /// The button12_Click.
+        /// The button12_Click.  - Find Next
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void button12_Click(object sender, EventArgs e)
         {
             var rSelected = new List<DataGridViewRow>();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+            dataGridView1.Enabled = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = true;
             foreach (DataGridViewRow r in dataGridView1.SelectedRows)
@@ -1087,6 +1105,11 @@
             }
             foreach (DataGridViewRow rs in rSelected)
                 dataGridView1.Rows[rs.Index].Selected = true;
+            seeVisibleRow(dataGridView1, curFound);
+            Thread.Sleep(300);
+            dataGridView1.Enabled = true;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+
         }
 
         /// <summary>
@@ -1097,6 +1120,8 @@
         private void button13_Click(object sender, EventArgs e)
         {
             var rSelected = new List<DataGridViewRow>();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+            dataGridView1.Enabled = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = true;
             foreach (DataGridViewRow r in dataGridView1.SelectedRows)
@@ -1116,6 +1141,11 @@
             }
             foreach (DataGridViewRow rs in rSelected)
                 dataGridView1.Rows[rs.Index].Selected = true;
+            seeVisibleRow(dataGridView1, curFound);
+            Thread.Sleep(300);
+            dataGridView1.Enabled = true;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+
         }
 
         /// <summary>
@@ -1690,11 +1720,12 @@
         private void button6_Click_1(object sender, EventArgs e)
         {
             var rSelected = new List<DataGridViewRow>();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             string searchValue = "";
             searchValue = textBox4.Text;
             curFound = 0;
             foundCnt = 0;
-
+            iTopRow = dataGridView1.FirstDisplayedScrollingRowIndex;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = true;
 
@@ -1742,10 +1773,15 @@
                 if (radioButton5.Checked)
                     System.Windows.Forms.MessageBox.Show(string.Format(" Búsqueda encontrada {0} artículos", Convert.ToString(foundCnt)));
             }
+            seeVisibleRow(dataGridView1, firstFound);
+            Thread.Sleep(300);
+            dataGridView1.Enabled = true;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
         }
 
         /// <summary>
         /// The button7_Click.
+        /// CLear Search Box and reset program variables.
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
@@ -1754,7 +1790,15 @@
             foundCnt = 0;
             curFound = 0;
             textBox4.Clear();
+
             dataGridView1.ClearSelection();
+            dataGridView1.MultiSelect = false;
+            dataGridView1.FirstDisplayedScrollingRowIndex = iTopRow;
+            while (dataGridView1.Rows[firstFound].Visible == false) firstFound++;
+            dataGridView1.CurrentCell = dataGridView1[visibleColumnIndex, firstFound];
+            dataGridView1.CurrentRow.Selected = true;
+            firstFound = 0;
+            dataGridView1.Enabled = true;
         }
 
         /// <summary>
@@ -1833,6 +1877,7 @@
             {
 
                 dr = form3.ShowDialog();            // bring up the form
+                dataGridView1.Enabled = true;
             }
 
             if (DialogResult.Cancel == dr)
@@ -2375,7 +2420,7 @@
             {
                 done = false;
                 textBox2.ForeColor = System.Drawing.Color.Black;
-
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                 if (dataGridView1.CurrentCell.ColumnIndex == 0)
                 {
                     dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect; // use to be FullRowSelect
@@ -2415,6 +2460,7 @@
                         {
                             using (var Form2 = new Form2())
                             {
+
                                 var format = "yyyy-MM-dd ddd hh:mm tt";
                                 var ndt = DateTime.Now.ToString(format);
 
@@ -2559,9 +2605,11 @@
                                                 task = Program.gTranslate(lines[j], "en", false);
                                                 task.Wait();
                                                 ttext = task.Result.ToString();
-
-                                                ttext = ttext.Replace("en", "(es):");
-                                                ttext = FixDateTime(ttext);
+                                                if (!string.IsNullOrEmpty(ttext) && CheckDate(lines[j]))
+                                                {
+                                                    ttext = ttext.Replace("en", "(es):");
+                                                    ttext = FixDateTime(ttext);
+                                                }
                                                 newlines.Add(ttext);
                                                 continue;
                                             }
@@ -2581,10 +2629,12 @@
                                                     task = Program.gTranslate(lines[j], "en", false);
                                                     task.Wait();
                                                     ttext = task.Result.ToString();
-                                                    ttext = FixDateTime(ttext);
-                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(es):");
-                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "en ", "(es):");
-
+                                                    if (!string.IsNullOrEmpty(ttext) && CheckDate(lines[j]))
+                                                    {
+                                                        ttext = FixDateTime(ttext);
+                                                        //ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(es):");
+                                                        ttext = Program.ReplaceFirstOccurrence(ttext, "(en): ", "(es):");
+                                                    }
                                                     newlines.Add(ttext);
                                                     continue;
                                                 }
@@ -2601,10 +2651,12 @@
                                                 task.Wait();
                                                 ttext = task.Result.ToString();
                                                 // fix up date and time strings
-                                                ttext = FixDateTime(ttext);
-
-                                                ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(en):");
-                                                ttext = Program.ReplaceFirstOccurrence(ttext, "en ", "(en):");
+                                                if (!string.IsNullOrEmpty(ttext) && CheckDate(lines[j]))
+                                                {
+                                                    ttext = FixDateTime(ttext);
+                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(en):");
+                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "en ", "(en):");
+                                                }
                                                 newlines.Add(ttext);
                                                 continue;
                                             }
@@ -2615,12 +2667,14 @@
                                                 task.Wait();
                                                 ttext = task.Result.ToString() + Environment.NewLine;
                                                 // fixup date and time strings
-                                                ttext = FixDateTime(ttext);
-
-                                                ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(en):");
-                                                ttext = Program.ReplaceFirstOccurrence(ttext, "en ", "(es):");
-
-                                                newlines.Add(ttext);
+                                                if (!string.IsNullOrEmpty(ttext) && CheckDate(lines[j]))
+                                                {
+                                                    ttext = FixDateTime(ttext);
+                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "es ", "(en):");
+                                                    ttext = Program.ReplaceFirstOccurrence(ttext, "en ", "(es):");
+                                                }
+                                                if (ttext == Environment.NewLine) newlines.Add(lines[j]);
+                                                else newlines.Add(ttext);
                                                 continue;
                                             }
                                         }
@@ -2643,9 +2697,12 @@
                                     task = Program.gTranslate(lines[j], null, true);
                                     task.Wait();
                                     ltext = task.Result.ToString();
-                                    if (lines[j].Contains("(" + ltext + ")")) continue;
-                                    lines[j] = "(" + ltext + "):" + lines[j];
-                                    goto lb2;
+                                    if (!string.IsNullOrEmpty(ltext))
+                                    {
+                                        if (lines[j].Contains("(" + ltext + ")")) continue;
+                                        lines[j] = "(" + ltext + "):" + lines[j];
+                                        goto lb2;
+                                    }
 
                                     if (((ltext == "es") && radioButton6.Checked) ||
                                            ((ltext == "en") && radioButton5.Checked))
@@ -2656,7 +2713,6 @@
                                         ttext = null;
                                         if (string.IsNullOrWhiteSpace(lines[j]))
                                         {
-                                            //ttext = ttext + Environment.NewLine;
                                             continue;
                                         }
                                         task = Program.gTranslate(lines[j], ltext, false);
@@ -2675,6 +2731,7 @@
 
                                 lines = newlines.ToArray();
                                 form2.textBox6.Clear();
+                                form2.textBox6.AppendText(Environment.NewLine);
                                 foreach (string line in lines)
                                     if (line != Environment.NewLine)
                                         form2.textBox6.AppendText(line + Environment.NewLine);
@@ -2765,6 +2822,7 @@
                                 dataGridView1.Focus();
                                 if (dr == DialogResult.OK)
                                 {
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                                     saveFSdata(nRow);
                                     //
                                     // unselect current row and find the next visable
@@ -2788,7 +2846,7 @@
                                             }
                                     }
                                     catch { }
-                                    //dr = DialogResult.None;
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
                                 }
 
                                 //
@@ -2796,6 +2854,7 @@
                                 //
                                 if (dr == DialogResult.No)
                                 {
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                                     try
                                     {
                                         dataGridView1.Rows[nRow].Selected = false;
@@ -2814,7 +2873,7 @@
                                         }
                                     }
                                     catch { }
-
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
                                     dataGridView1.Refresh();
                                     continue;
                                 }
@@ -2824,6 +2883,7 @@
                                 //
                                 if (dr == DialogResult.Retry)
                                 {
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                                     try
                                     {
                                         dataGridView1.Rows[nRow].Selected = false;
@@ -2849,6 +2909,7 @@
                                         textBox2.Update();
                                         textBox2.Text = " top row reached ";
                                     }
+                                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
                                     dataGridView1.Refresh();
                                     continue;
                                 }
@@ -2856,10 +2917,13 @@
                                 //
                                 // else exit back to form 1 
                                 //
-
                                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                                 dataGridView1.Rows[nRow].Selected = true;
-                                if(dr == DialogResult.Cancel) dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "ADDRESS")].Selected = true;
+                                if (dr == DialogResult.Cancel)
+                                {
+                                    dataGridView1.Rows[nRow].Cells[GetindexOf(dataGridView1, "ADDRESS")].Selected = true;
+                                    dataGridView1.Enabled = true;
+                                }
                                 dataGridView1.Refresh();
                                 dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect;
                                 dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
@@ -2887,7 +2951,7 @@
                 else break;
             }
             dr = DialogResult.None;
-
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
             done = true;
         }
 
@@ -3098,10 +3162,21 @@
         /// <returns>The <see cref="string"/>.</returns>
         private string FixDateTime(string ttext)
         {
+            string otext = ttext;
+            ttext = ttext.Replace("(es):", "");
+            ttext = ttext.Replace("(en):", "");
             const string Pattern = @"(?<y>\d{4})(?<m>\d{2})(?<d>\d{2})";
-            const string pattern = @"(?<t>\d{2})(?<s>\d{2})";
+            const string pattern = @"(?<t>\d{2})(?<s>\d{2}\ )";
             ttext = Regex.Replace(ttext, Pattern, "${y}-${m}-${d}");
-            ttext = Regex.Replace(ttext, pattern, "${t}:${s}");
+            char[] rtext = ttext.ToCharArray();
+            Array.Reverse(rtext);
+            string text = new string(rtext);
+            text = Regex.Replace(text, pattern, "${t}:${s}");
+            rtext = text.ToCharArray();
+            Array.Reverse(rtext);
+            ttext = new string(rtext);
+            if (otext.Contains("(es):")) ttext = "(es):" + ttext;
+            if (otext.Contains("(en):")) ttext = "(en):" + ttext;
             return (ttext);
         }
 
@@ -4478,6 +4553,15 @@
             textBox1.Text = cellch.Count.ToString() + " changes";
             textBox1.Update();
             return;
+        }
+
+        /// <summary>
+        /// The textBox4_TextChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
         }
 
         /// <summary>
